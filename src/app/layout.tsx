@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,6 +20,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"
+          data-web-components={true}
+          async
+          strategy="beforeInteractive"
+        />
+      </head>
       <body className={`${inter.variable} ${inter.variable} antialiased`}>
         {children}
       </body>

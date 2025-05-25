@@ -1,4 +1,6 @@
 "use client";
+
+import Link from "next/link";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -17,7 +19,7 @@ export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover absolute inset-0"
-            unoptimized // Helps with Spotify's image hosting
+            unoptimized
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700">
@@ -40,12 +42,15 @@ export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
           {playlist.tracks.total} tracks
         </p>
       </div>
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        className="w-full py-2 bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors"
-      >
-        EXPORT
-      </motion.button>
+      <Link href={`/export/${playlist.id}`}>
+        <motion.a
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="block w-full py-2 bg-blue-500 text-white text-sm font-medium text-center hover:bg-blue-600 transition-colors rounded-b"
+        >
+          EXPORT
+        </motion.a>
+      </Link>
     </div>
   );
 }

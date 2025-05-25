@@ -11,23 +11,14 @@ export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
     >
       <div className="relative w-full pt-[100%] bg-gray-100 dark:bg-gray-700">
         {playlist.images && playlist.images[0] ? (
-          <>
-            <Image
-              src={playlist.images[0].url}
-              alt={playlist.name}
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover absolute inset-0"
-              unoptimized // Helps with Spotify's image hosting
-            />
-            <motion.div
-              initial={{ scale: 0 }}
-              whileHover={{ scale: 1 }}
-              className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 text-black"
-            >
-              EXPORT+
-            </motion.div>
-          </>
+          <Image
+            src={playlist.images[0].url}
+            alt={playlist.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover absolute inset-0"
+            unoptimized // Helps with Spotify's image hosting
+          />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700">
             <svg
@@ -49,6 +40,12 @@ export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
           {playlist.tracks.total} tracks
         </p>
       </div>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        className="w-full py-2 bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors"
+      >
+        EXPORT
+      </motion.button>
     </div>
   );
 }

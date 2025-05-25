@@ -38,7 +38,7 @@ export default function AppleMusicAuth() {
     if (typeof window === "undefined" || !window.MusicKit) return;
 
     window.MusicKit.configure({
-      developerToken: process.env.APPLE_MUSIC_DEVELOPER_TOKEN!,
+      developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!,
       app: {
         name: "Altern",
         build: "1.0.0",

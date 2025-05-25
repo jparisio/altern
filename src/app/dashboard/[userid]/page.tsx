@@ -2,12 +2,6 @@ import { cookies } from "next/headers";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Playlist from "@/components/Playlist";
 
-type Props = {
-  params: {
-    userid: string;
-  };
-};
-
 export default async function Page() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("spotify_access_token")?.value;
@@ -39,9 +33,10 @@ export default async function Page() {
       <div className="w-full max-w-4xl">
         <h2 className="text-xl font-bold mb-4">Your Playlists</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {playlists.map((playlist) => (
+          {/* {playlists.map((playlist) => (
             <Playlist key={playlist.id} playlist={playlist} />
-          ))}
+          ))} */}
+          <></>
         </div>
       </div>
     </main>

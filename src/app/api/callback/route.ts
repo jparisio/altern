@@ -49,11 +49,11 @@ export async function GET(req: NextRequest) {
   }
 
   const profile = await profileRes.json();
-  const userId = profile.id;
+  const userid = profile.id;
 
-  // Create response redirecting to /dashboard/[userId]
+  // Create response redirecting to /dashboard/[userid]
   const response = NextResponse.redirect(
-    new URL(`/dashboard/${userId}`, req.url)
+    new URL(`/dashboard/${userid}`, req.url)
   );
 
   // Set HTTP-only, secure cookies for tokens (adjust domain & options as needed)

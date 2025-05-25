@@ -97,6 +97,7 @@ export default function ExportPage() {
       {isAuthorized ? (
         <div className="mb-4">
           <p>Authorized with Apple Music!</p>
+          <p>{userToken}</p>
           <button
             onClick={() => console.log("Start export process")}
             className="px-4 py-2 bg-green-500 text-white rounded mt-4"

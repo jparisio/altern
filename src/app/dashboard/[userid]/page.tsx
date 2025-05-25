@@ -8,7 +8,7 @@ type Props = {
   };
 };
 
-export default async function UserDashboardPage() {
+export default async function Page({ params }: { params: { userid: string } }) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("spotify_access_token")?.value;
 
@@ -33,7 +33,7 @@ export default async function UserDashboardPage() {
   return (
     <main className="flex min-h-screen flex-col items-center p-8">
       <div className="flex flex-col items-center justify-center mb-10">
-        <h1 className="text-2xl font-bold">Welcome, User!</h1>
+        <h1 className="text-2xl font-bold">Welcome, {params.userid}!</h1>
       </div>
 
       <div className="w-full max-w-4xl">

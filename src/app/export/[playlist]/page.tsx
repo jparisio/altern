@@ -1,133 +1,87 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { usePathname } from "next/navigation";
-
-interface MusicKitConfig {
-  developerToken: string;
-  app: { name: string; build: string };
-}
+import React, { useEffect, useState } from "react";
 
 interface MusicKitInstance {
   isAuthorized: boolean;
   musicUserToken: string;
   authorize(): Promise<string>;
   addEventListener(event: string, callback: () => void): void;
+  configure(config: {
+    developerToken: string;
+    app: { name: string; build: string };
+  }): void;
 }
 
-// Augment the Window interface instead of using namespace
 declare global {
   interface Window {
     MusicKit: {
       getInstance(): MusicKitInstance;
-      configure(config: MusicKitConfig): void;
+      configure(config: {
+        developerToken: string;
+        app: { name: string; build: string };
+      }): void;
       addEventListener(event: string, callback: () => void): void;
     };
   }
 }
 
-export default function ExportPage() {
+export default function AppleMusicAuth() {
   const [musicKitInstance, setMusicKitInstance] =
     useState<MusicKitInstance | null>(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [userToken, setUserToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Extract playlistId from the URL path
-  const pathname = usePathname();
-  const playlistId = pathname?.split("/").pop() || "";
-
-  // Define the auth status change handler as a useCallback function
-  const handleAuthChange = useCallback(() => {
-    if (!musicKitInstance) return;
-
-    setIsAuthorized(musicKitInstance.isAuthorized);
-    if (musicKitInstance.isAuthorized) {
-      setUserToken(musicKitInstance.musicUserToken);
-    } else {
-      setUserToken(null);
-    }
-  }, [musicKitInstance]);
 
   useEffect(() => {
-    // Check if MusicKit is available
-    if (typeof window === "undefined" || !window.MusicKit) {
-      console.error(
-        "MusicKit not found. Make sure Apple Music JS SDK is loaded."
-      );
-      setIsLoading(false);
-      return;
-    }
+    if (
+      typeof window !== "undefined" &&
+      (window as Window & typeof globalThis).MusicKit
+    ) {
+      const musicKit = (
+        window as Window & typeof globalThis
+      ).MusicKit.getInstance();
 
-    try {
-      // First, configure MusicKit (before getting an instance)
-      window.MusicKit.configure({
-        developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!,
-        app: {
-          name: "Altern",
-          build: "1.0.0",
-        },
-      });
-
-      // Then get the instance
-      const instance = window.MusicKit.getInstance();
-      setMusicKitInstance(instance);
-      setIsAuthorized(instance.isAuthorized);
-
-      if (instance.isAuthorized) {
-        setUserToken(instance.musicUserToken);
+      if (!musicKit.isAuthorized) {
+        musicKit.configure({
+          developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!,
+          app: {
+            name: "Altern",
+            build: "1.0.0",
+          },
+        });
       }
 
-      // Add event listener
-      instance.addEventListener(
-        "authorizationStatusDidChange",
-        handleAuthChange
-      );
-    } catch (error) {
-      console.error("Error initializing MusicKit:", error);
-    } finally {
-      setIsLoading(false);
-    }
+      setMusicKitInstance(musicKit);
+      setIsAuthorized(musicKit.isAuthorized);
 
-    // Cleanup function
-    return () => {
-      // MusicKitInstance does not support removeEventListener, so no cleanup needed here.
-    };
-  }, [handleAuthChange]);
+      musicKit.addEventListener("authorizationStatusDidChange", () => {
+        setIsAuthorized(musicKit.isAuthorized);
+        if (musicKit.isAuthorized) {
+          setUserToken(musicKit.musicUserToken);
+        } else {
+          setUserToken(null);
+        }
+      });
+    }
+  }, []);
 
   const handleAuthorize = async () => {
     if (!musicKitInstance) return;
-
     try {
-      const token = await musicKitInstance.authorize();
-      console.log("Authorization successful:", token);
+      await musicKitInstance.authorize();
+      setIsAuthorized(true);
+      setUserToken(musicKitInstance.musicUserToken);
     } catch (error) {
       console.error("Apple Music authorization failed:", error);
     }
   };
 
-  if (isLoading) {
-    return <div>Loading MusicKit...</div>;
-  }
-
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-8">
-      <h1 className="text-2xl font-bold mb-6">Export Playlist</h1>
-      <p className="mb-4">
-        Exporting Spotify playlist ID: <code>{playlistId}</code>
-      </p>
-
+    <div>
       {isAuthorized ? (
-        <div className="mb-4">
-          <p>Authorized with Apple Music!</p>
-          <p>{userToken}</p>
-          <button
-            onClick={() => console.log("Start export process")}
-            className="px-4 py-2 bg-green-500 text-white rounded mt-4"
-          >
-            Export to Apple Music
-          </button>
-        </div>
+        <p>
+          Authorized! Your user token: <code>{userToken}</code>
+        </p>
       ) : (
         <button
           onClick={handleAuthorize}
@@ -136,6 +90,6 @@ export default function ExportPage() {
           Sign in with Apple Music
         </button>
       )}
-    </main>
+    </div>
   );
 }

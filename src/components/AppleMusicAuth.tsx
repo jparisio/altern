@@ -38,7 +38,7 @@ export default function AppleMusicAuth() {
     if (typeof window === "undefined" || !window.MusicKit) return;
 
     window.MusicKit.configure({
-      developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!,
+      developerToken: process.env.APPLE_MUSIC_DEVELOPER_TOKEN!,
       app: {
         name: "Altern",
         build: "1.0.0",
@@ -60,7 +60,7 @@ export default function AppleMusicAuth() {
     <div className="p-6 max-w-md mx-auto bg-white dark:bg-black text-black dark:text-white rounded">
       <button
         onClick={handleAuthorize}
-        className="px-4 py-2 bg-black text-white rounded mb-4"
+        className="px-4 py-2 bg-white text-black rounded mb-4 flex items-center justify-center hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 transition-colors"
       >
         Sign in & Load Playlists
       </button>

@@ -3,9 +3,32 @@
 import { useEffect, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 
+interface MusicKitConfig {
+  developerToken: string;
+  app: { name: string; build: string };
+}
+
+interface MusicKitInstance {
+  isAuthorized: boolean;
+  musicUserToken: string;
+  authorize(): Promise<string>;
+  addEventListener(event: string, callback: () => void): void;
+}
+
+// Augment the Window interface instead of using namespace
+declare global {
+  interface Window {
+    MusicKit: {
+      getInstance(): MusicKitInstance;
+      configure(config: MusicKitConfig): void;
+      addEventListener(event: string, callback: () => void): void;
+    };
+  }
+}
+
 export default function ExportPage() {
   const [musicKitInstance, setMusicKitInstance] =
-    useState<MusicKit.MusicKitInstance | null>(null);
+    useState<MusicKitInstance | null>(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [userToken, setUserToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
-// import Playlist from "@/components/Playlist";
+import Playlist from "@/components/Playlist";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -24,8 +24,6 @@ export default async function Page() {
   const playlistsData = await playlistsRes.json();
   const playlists: SpotifyPlaylist[] = playlistsData.items;
 
-  console.log(playlists);
-
   return (
     <main className="flex min-h-screen flex-col items-center p-8">
       <div className="flex flex-col items-center justify-center mb-10">
@@ -35,10 +33,9 @@ export default async function Page() {
       <div className="w-full max-w-4xl">
         <h2 className="text-xl font-bold mb-4">Your Playlists</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {/* {playlists.map((playlist) => (
+          {playlists.map((playlist) => (
             <Playlist key={playlist.id} playlist={playlist} />
-          ))} */}
-          <></>
+          ))}
         </div>
       </div>
     </main>

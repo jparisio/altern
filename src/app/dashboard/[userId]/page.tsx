@@ -2,11 +2,7 @@
 import { cookies } from "next/headers";
 import { SpotifyPlaylist } from "@/lib/types/spotifyTypes";
 
-export default async function UserDashboardPage({
-  params,
-}: {
-  params: { userId: string };
-}) {
+export default async function UserDashboardPage() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("spotify_access_token")?.value;
 

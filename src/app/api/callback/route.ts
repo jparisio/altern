@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
-
   if (!code) {
     return NextResponse.json(
       { error: "Missing code from Spotify" },
@@ -13,7 +12,8 @@ export async function GET(req: NextRequest) {
   const authString = `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`;
   const encodedAuth = Buffer.from(authString).toString("base64");
 
-  const res = await fetch("https://accounts.spotify.com/api/token", {
+  // Exchange code for tokens
+  const tokenRes = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
       Authorization: `Basic ${encodedAuth}`,
@@ -26,19 +26,51 @@ export async function GET(req: NextRequest) {
     }),
   });
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    return NextResponse.json({ error: data }, { status: res.status });
+  if (!tokenRes.ok) {
+    const errorData = await tokenRes.json();
+    return NextResponse.json({ error: errorData }, { status: tokenRes.status });
   }
 
-  const { access_token, refresh_token } = data;
+  const { access_token, refresh_token } = await tokenRes.json();
 
-  // ⤵️ Redirect user to your app with token info (TEMP)
-  return NextResponse.redirect(
-    new URL(
-      `/dashboard?access_token=${access_token}&refresh_token=${refresh_token}`,
-      req.url
-    )
+  // Get user profile to find user ID
+  const profileRes = await fetch("https://api.spotify.com/v1/me", {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
+
+  if (!profileRes.ok) {
+    const errorData = await profileRes.json();
+    return NextResponse.json(
+      { error: errorData },
+      { status: profileRes.status }
+    );
+  }
+
+  const profile = await profileRes.json();
+  const userId = profile.id;
+
+  // Create response redirecting to /dashboard/[userId]
+  const response = NextResponse.redirect(
+    new URL(`/dashboard/${userId}`, req.url)
   );
+
+  // Set HTTP-only, secure cookies for tokens (adjust domain & options as needed)
+  // Secure: true requires HTTPS, so on localhost you might need false or use env flag
+  response.cookies.set("spotify_access_token", access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60, // 1 hour - match Spotify token expiry
+  });
+
+  response.cookies.set("spotify_refresh_token", refresh_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+  });
+
+  return response;
 }

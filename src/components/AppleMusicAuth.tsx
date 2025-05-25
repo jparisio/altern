@@ -2,98 +2,77 @@
 
 import React, { useEffect, useState } from "react";
 
-interface MusicKitConfig {
-  developerToken: string;
-  app: { name: string; build: string };
-}
-
 interface MusicKitInstance {
   isAuthorized: boolean;
   musicUserToken: string;
   authorize(): Promise<string>;
-  addEventListener(event: string, callback: () => void): void;
+  api: {
+    music(endpoint: string): Promise<{ data: Playlist[] }>;
+  };
 }
 
-// Augment the Window interface instead of using namespace
+interface Playlist {
+  id: string;
+  attributes: {
+    name: string;
+  };
+}
+
 declare global {
   interface Window {
     MusicKit: {
       getInstance(): MusicKitInstance;
-      configure(config: MusicKitConfig): void;
-      addEventListener(event: string, callback: () => void): void;
+      configure(config: {
+        developerToken: string;
+        app: { name: string; build: string };
+      }): void;
     };
   }
 }
 
-interface AppleMusicAuthProps {
-  onAuthSuccess?: (token: string) => void;
-}
-
-export default function AppleMusicAuth({ onAuthSuccess }: AppleMusicAuthProps) {
-  const [musicKitInstance, setMusicKitInstance] =
-    useState<MusicKitInstance | null>(null);
-  const [isAuthorized, setIsAuthorized] = useState(false);
-  const [userToken, setUserToken] = useState<string | null>(null);
+export default function AppleMusicAuth() {
+  const [musicKit, setMusicKit] = useState<MusicKitInstance | null>(null);
+  const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.MusicKit) {
-      window.MusicKit.configure({
-        developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!,
-        app: {
-          name: "Altern",
-          build: "1.0.0",
-        },
-      });
+    if (typeof window === "undefined" || !window.MusicKit) return;
 
-      const musicKit = window.MusicKit.getInstance();
+    window.MusicKit.configure({
+      developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!,
+      app: {
+        name: "Altern",
+        build: "1.0.0",
+      },
+    });
 
-      setMusicKitInstance(musicKit);
-      setIsAuthorized(musicKit.isAuthorized);
-
-      if (musicKit.isAuthorized) {
-        const token = musicKit.musicUserToken;
-        setUserToken(token);
-        onAuthSuccess?.(token);
-      }
-
-      musicKit.addEventListener("authorizationStatusDidChange", () => {
-        setIsAuthorized(musicKit.isAuthorized);
-        if (musicKit.isAuthorized) {
-          const token = musicKit.musicUserToken;
-          setUserToken(token);
-          onAuthSuccess?.(token);
-        } else {
-          setUserToken(null);
-        }
-      });
-    }
-  }, [onAuthSuccess]);
+    const instance = window.MusicKit.getInstance();
+    setMusicKit(instance);
+  }, []);
 
   const handleAuthorize = async () => {
-    if (!musicKitInstance) return;
-    try {
-      await musicKitInstance.authorize();
-    } catch (error) {
-      console.error("Apple Music authorization failed:", error);
-    }
+    if (!musicKit) return;
+    await musicKit.authorize();
+    const res = await musicKit.api.music("v1/me/library/playlists");
+    setPlaylists(res.data);
   };
 
-  console.log("Apple Music user token:", userToken);
-
   return (
-    <div className="w-full">
-      {isAuthorized ? (
-        <p className="text-green-500">✓ Authorized with Apple Music</p>
-      ) : (
-        <button
-          onClick={handleAuthorize}
-          className="w-full px-4 py-2 bg-black text-white rounded flex items-center justify-center"
-        >
-          <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z" />
-          </svg>
-          Sign in with Apple Music
-        </button>
+    <div className="p-6 max-w-md mx-auto bg-white dark:bg-black text-black dark:text-white rounded">
+      <button
+        onClick={handleAuthorize}
+        className="px-4 py-2 bg-black text-white rounded mb-4"
+      >
+        Sign in & Load Playlists
+      </button>
+
+      {playlists && (
+        <ul className="space-y-2">
+          {playlists.map((playlist) => (
+            <li key={playlist.id} className="border-b pb-1">
+              {playlist.attributes.name}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

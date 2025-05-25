@@ -1,4 +1,3 @@
-// app/dashboard/[userId]/page.tsx
 import { cookies } from "next/headers";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Playlist from "@/components/Playlist";
@@ -46,5 +45,3 @@ export default async function UserDashboardPage({
     </main>
   );
 }
-
-//edited folder name

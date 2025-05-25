@@ -1,95 +1,117 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import AppleMusicAuth from "@/components/AppleMusicAuth";
+import Script from "next/script";
 
-interface MusicKitInstance {
-  isAuthorized: boolean;
-  musicUserToken: string;
-  authorize(): Promise<string>;
-  addEventListener(event: string, callback: () => void): void;
-  configure(config: {
-    developerToken: string;
-    app: { name: string; build: string };
-  }): void;
-}
-
-declare global {
-  interface Window {
-    MusicKit: {
-      getInstance(): MusicKitInstance;
-      configure(config: {
-        developerToken: string;
-        app: { name: string; build: string };
-      }): void;
-      addEventListener(event: string, callback: () => void): void;
-    };
-  }
-}
-
-export default function AppleMusicAuth() {
-  const [musicKitInstance, setMusicKitInstance] =
-    useState<MusicKitInstance | null>(null);
-  const [isAuthorized, setIsAuthorized] = useState(false);
+export default function ExportPage() {
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportStatus, setExportStatus] = useState("");
   const [userToken, setUserToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      (window as Window & typeof globalThis).MusicKit
-    ) {
-      const musicKit = (
-        window as Window & typeof globalThis
-      ).MusicKit.getInstance();
+  // Extract playlistId from the URL path
+  const pathname = usePathname();
+  const playlistId = pathname?.split("/").pop() || "";
 
-      if (!musicKit.isAuthorized) {
-        musicKit.configure({
-          developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!,
-          app: {
-            name: "Altern",
-            build: "1.0.0",
-          },
-        });
-      }
+  // Handle when auth is successful
+  const handleAuthSuccess = (token: string) => {
+    setUserToken(token);
+    console.log("Successfully authenticated with Apple Music!");
+  };
 
-      setMusicKitInstance(musicKit);
-      setIsAuthorized(musicKit.isAuthorized);
+  // Start the export process
+  const handleExport = async () => {
+    if (!userToken || !playlistId) return;
 
-      musicKit.addEventListener("authorizationStatusDidChange", () => {
-        setIsAuthorized(musicKit.isAuthorized);
-        if (musicKit.isAuthorized) {
-          setUserToken(musicKit.musicUserToken);
-        } else {
-          setUserToken(null);
-        }
-      });
-    }
-  }, []);
+    setIsExporting(true);
+    setExportStatus("Fetching Spotify playlist tracks...");
 
-  const handleAuthorize = async () => {
-    if (!musicKitInstance) return;
     try {
-      await musicKitInstance.authorize();
-      setIsAuthorized(true);
-      setUserToken(musicKitInstance.musicUserToken);
+      // 1. Fetch Spotify playlist tracks (implement this API)
+      const response = await fetch(`/api/spotify/playlist/${playlistId}`);
+      const data = await response.json();
+
+      setExportStatus(
+        `Found ${data.tracks.length} tracks. Creating Apple Music playlist...`
+      );
+
+      // 2. Send tracks and Apple Music token to backend to create playlist
+      const exportResponse = await fetch("/api/apple/create-playlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tracks: data.tracks,
+          playlistName: data.name,
+          userToken: userToken,
+        }),
+      });
+
+      const result = await exportResponse.json();
+
+      if (result.success) {
+        setExportStatus(`Success! Playlist created in Apple Music.`);
+      } else {
+        setExportStatus(`Error: ${result.error}`);
+      }
     } catch (error) {
-      console.error("Apple Music authorization failed:", error);
+      console.error("Export failed:", error);
+      setExportStatus("Export failed. Please try again.");
+    } finally {
+      setIsExporting(false);
     }
   };
 
   return (
-    <div>
-      {isAuthorized ? (
-        <p>
-          Authorized! Your user token: <code>{userToken}</code>
+    <>
+      {/* Load Apple Music JS SDK */}
+      <Script
+        src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"
+        onLoad={() => setIsSDKLoaded(true)}
+      />
+
+      <main className="min-h-screen flex flex-col items-center justify-center p-8">
+        <h1 className="text-2xl font-bold mb-6">Export Playlist</h1>
+        <p className="mb-4">
+          Exporting Spotify playlist ID: <code>{playlistId}</code>
         </p>
-      ) : (
-        <button
-          onClick={handleAuthorize}
-          className="px-4 py-2 bg-black text-white rounded"
-        >
-          Sign in with Apple Music
-        </button>
-      )}
-    </div>
+
+        {!isSDKLoaded ? (
+          <p>Loading Apple Music SDK...</p>
+        ) : (
+          <>
+            {!userToken ? (
+              <div className="p-8 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <p className="mb-4">First, connect to Apple Music:</p>
+                <AppleMusicAuth onAuthSuccess={handleAuthSuccess} />
+              </div>
+            ) : (
+              <div className="p-8 bg-gray-100 dark:bg-gray-800 rounded-lg w-full max-w-md">
+                <p className="text-green-500 mb-4">
+                  ✓ Connected to Apple Music
+                </p>
+
+                {isExporting ? (
+                  <div className="text-center">
+                    <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent mx-auto mb-4"></div>
+                    <p>{exportStatus}</p>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleExport}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-md font-medium hover:from-pink-600 hover:to-purple-700 transition-colors"
+                  >
+                    Export to Apple Music
+                  </button>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </main>
+    </>
   );
 }

@@ -39,10 +39,7 @@ export default async function UserDashboardPage({
         <h2 className="text-xl font-bold mb-4">Your Playlists</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {playlists.map((playlist) => (
-            <div
-              key={playlist.id}
-              className="border rounded-lg p-4 flex flex-col"
-            >
+            <div key={playlist.id} className="p-4 flex flex-col">
               {playlist.images && playlist.images[0] && (
                 <Image
                   src={playlist.images[0].url}

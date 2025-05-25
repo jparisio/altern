@@ -1,6 +1,7 @@
 // app/dashboard/[userId]/page.tsx
 import { cookies } from "next/headers";
 import { SpotifyPlaylist } from "@/lib/types/spotifyTypes";
+import Image from "next/image";
 
 export default async function UserDashboardPage() {
   const cookieStore = await cookies();
@@ -54,7 +55,7 @@ export default async function UserDashboardPage() {
               className="border rounded-lg p-4 flex flex-col"
             >
               {playlist.images && playlist.images[0] && (
-                <img
+                <Image
                   src={playlist.images[0].url}
                   alt={playlist.name}
                   className="w-full h-32 object-cover rounded mb-2"

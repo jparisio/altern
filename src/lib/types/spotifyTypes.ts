@@ -74,7 +74,13 @@ export interface SpotifyTrackItem {
     href: string;
     id: string;
     is_playable: boolean;
-    linked_from?: any;
+    linked_from?: {
+      external_urls?: ExternalUrls;
+      href?: string;
+      id?: string;
+      type?: string;
+      uri?: string;
+    } | null;
     restrictions?: {
       reason: string;
     };

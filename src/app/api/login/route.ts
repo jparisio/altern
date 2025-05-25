@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import queryString from "query-string";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const scopes = ["playlist-modify-public", "playlist-modify-private"];
 
   const queryParams = queryString.stringify({

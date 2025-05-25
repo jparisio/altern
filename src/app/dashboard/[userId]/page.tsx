@@ -3,26 +3,17 @@ import { cookies } from "next/headers";
 import { SpotifyPlaylist } from "@/lib/types/spotifyTypes";
 import Image from "next/image";
 
-export default async function UserDashboardPage() {
+export default async function UserDashboardPage({
+  params,
+}: {
+  params: { userid: string };
+}) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("spotify_access_token")?.value;
 
   if (!accessToken) {
     return <p>Error: No access token found. Please log in again.</p>;
   }
-
-  // Fetch user's Spotify profile
-  const res = await fetch("https://api.spotify.com/v1/me", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!res.ok) {
-    return <p>Error fetching profile: {res.statusText}</p>;
-  }
-
-  const profile = await res.json();
 
   // Fetch user's playlists
   const playlistsRes = await fetch("https://api.spotify.com/v1/me/playlists", {
@@ -41,9 +32,7 @@ export default async function UserDashboardPage() {
   return (
     <main className="flex min-h-screen flex-col items-center p-8">
       <div className="flex flex-col items-center justify-center mb-10">
-        <h1 className="text-2xl font-bold">Welcome, {profile.display_name}!</h1>
-        <p>Spotify ID: {profile.id}</p>
-        <p>Email: {profile.email}</p>
+        <h1 className="text-2xl font-bold">Welcome, {params.userid}!</h1>
       </div>
 
       <div className="w-full max-w-4xl">

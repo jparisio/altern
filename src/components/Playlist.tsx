@@ -1,6 +1,7 @@
 "use client";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
   return (
@@ -10,14 +11,23 @@ export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
     >
       <div className="relative w-full pt-[100%] bg-gray-100 dark:bg-gray-700">
         {playlist.images && playlist.images[0] ? (
-          <Image
-            src={playlist.images[0].url}
-            alt={playlist.name}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover absolute inset-0"
-            unoptimized // Helps with Spotify's image hosting
-          />
+          <>
+            <Image
+              src={playlist.images[0].url}
+              alt={playlist.name}
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover absolute inset-0"
+              unoptimized // Helps with Spotify's image hosting
+            />
+            <motion.div
+              initial={{ scale: 0 }}
+              whileHover={{ scale: 1 }}
+              className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 text-black"
+            >
+              EXPORT+
+            </motion.div>
+          </>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700">
             <svg

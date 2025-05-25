@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "motion": "^12.12.2",
     "next": "15.3.2",
     "query-string": "^9.2.0",
     "react": "^19.0.0",

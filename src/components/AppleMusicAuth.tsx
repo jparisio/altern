@@ -78,6 +78,8 @@ export default function AppleMusicAuth({ onAuthSuccess }: AppleMusicAuthProps) {
     }
   };
 
+  console.log("Apple Music user token:", userToken);
+
   return (
     <div className="w-full">
       {isAuthorized ? (

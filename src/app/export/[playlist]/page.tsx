@@ -65,8 +65,6 @@ export default function ExportPage() {
     }
   };
 
-  console.log("user token ID:", userToken);
-
   return (
     <>
       {/* Load Apple Music JS SDK */}

@@ -24,6 +24,8 @@ export default async function Page() {
   const playlistsData = await playlistsRes.json();
   const playlists: SpotifyPlaylist[] = playlistsData.items;
 
+  console.log(playlists);
+
   return (
     <main className="flex min-h-screen flex-col items-center p-8">
       <div className="flex flex-col items-center justify-center mb-10">

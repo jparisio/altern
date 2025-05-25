@@ -104,7 +104,7 @@ export interface SpotifyTracks {
   items: SpotifyTrackItem[];
 }
 
-export interface SpotifyPlaylist {
+export default interface SpotifyPlaylist {
   collaborative: boolean;
   description: string;
   external_urls: ExternalUrls;

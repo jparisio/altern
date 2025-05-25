@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
-import Playlist from "@/components/Playlist";
+// import Playlist from "@/components/Playlist";
 
 export default async function Page() {
   const cookieStore = await cookies();

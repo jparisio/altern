@@ -2,52 +2,50 @@
 
 import React, { useEffect, useState } from "react";
 
-declare global {
-  interface Window {
-    MusicKit: {
-      getInstance(): MusicKit.MusicKitInstance;
-      configure(config: {
-        developerToken: string;
-        app: { name: string; build: string };
-      }): void;
-      addEventListener(event: string, callback: () => void): void;
-    };
-  }
+interface MusicKitInstance {
+  isAuthorized: boolean;
+  musicUserToken: string;
+  authorize(): Promise<string>;
+  addEventListener(event: string, callback: () => void): void;
+}
 
-  namespace MusicKit {
-    interface MusicKitInstance {
-      isAuthorized: boolean;
-      musicUserToken: string;
-      authorize(): Promise<string>;
-      addEventListener(event: string, callback: () => void): void;
-    }
-  }
+interface Window {
+  MusicKit: {
+    getInstance(): MusicKitInstance;
+    configure(config: {
+      developerToken: string;
+      app: { name: string; build: string };
+    }): void;
+    addEventListener(event: string, callback: () => void): void;
+  };
 }
 
 export default function AppleMusicAuth() {
   const [musicKitInstance, setMusicKitInstance] =
-    useState<MusicKit.MusicKitInstance | null>(null);
+    useState<MusicKitInstance | null>(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [userToken, setUserToken] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && (window as any).MusicKit) {
-      const musicKit = (window as any).MusicKit.getInstance();
+    if (
+      typeof window !== "undefined" &&
+      (window as Window & typeof globalThis).MusicKit
+    ) {
+      const MusicKit = (window as Window & typeof globalThis).MusicKit;
 
-      if (!musicKit.isAuthorized) {
-        musicKit.configure({
-          developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!,
-          app: {
-            name: "Altern",
-            build: "1.0.0",
-          },
-        });
-      }
+      MusicKit.configure({
+        developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!,
+        app: {
+          name: "Altern",
+          build: "1.0.0",
+        },
+      });
+
+      const musicKit = MusicKit.getInstance();
 
       setMusicKitInstance(musicKit);
       setIsAuthorized(musicKit.isAuthorized);
 
-      // Listen for authorization change
       musicKit.addEventListener("authorizationStatusDidChange", () => {
         setIsAuthorized(musicKit.isAuthorized);
         if (musicKit.isAuthorized) {

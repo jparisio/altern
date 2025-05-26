@@ -9,7 +9,8 @@ import { useMusicStore } from "@/store/musicStore";
 export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
   const userToken = useMusicStore((state) => state.userToken);
 
-  console.log("🎵 User Token from Zustand:", userToken);
+  console.log("User token from Zustand persist:", userToken);
+
   return (
     <div
       key={playlist.id}

@@ -34,7 +34,7 @@ export default async function Page() {
         <h2 className="text-xl font-bold mb-4">Your Playlists</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {playlists.map((playlist) => (
-            <Playlist key={playlist.id} playlist={playlist} />
+            <Playlist playlist={playlist} />
           ))}
         </div>
       </div>

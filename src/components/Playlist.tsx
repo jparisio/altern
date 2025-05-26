@@ -47,15 +47,13 @@ export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
           {playlist.tracks.total} tracks
         </p>
       </div>
-      <Link href={`/export/${playlist.id}`}>
-        <motion.a
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="block w-full py-2 bg-blue-500 text-white text-sm font-medium text-center hover:bg-blue-600 transition-colors rounded-b"
-        >
-          EXPORT
-        </motion.a>
-      </Link>
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <Link href={`/export/${playlist.id}`}>
+          <a className="block w-full py-2 bg-blue-500 text-white text-sm font-medium text-center hover:bg-blue-600 transition-colors rounded-b">
+            EXPORT
+          </a>
+        </Link>
+      </motion.div>
     </div>
   );
 }

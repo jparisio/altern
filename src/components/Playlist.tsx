@@ -4,7 +4,6 @@ import Link from "next/link";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useMusicStore } from "@/store/musicStore";
 
 export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
   return (

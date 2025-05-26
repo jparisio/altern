@@ -7,10 +7,6 @@ import { motion } from "framer-motion";
 import { useMusicStore } from "@/store/musicStore";
 
 export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
-  const userToken = useMusicStore((state) => state.userToken);
-
-  console.log("User token from Zustand persist:", userToken);
-
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 flex flex-col h-full border border-gray-200 dark:border-gray-700">
       <div className="relative w-full pt-[100%] bg-gray-100 dark:bg-gray-700">

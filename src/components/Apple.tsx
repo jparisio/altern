@@ -1,6 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useMusicStore } from "@/store/musicStore";
+import { useState, useEffect } from "react";
 
 declare global {
   interface Window {
@@ -13,74 +12,53 @@ interface MusicKitStatic {
     developerToken: string | undefined;
     app: { name: string; build: string };
   }) => MusicKitInstance;
+  getInstance: () => MusicKitInstance;
 }
 
 interface MusicKitInstance {
   authorize: () => Promise<string>;
-  // ... you can add other methods if needed
 }
 
 export default function AppleMusicLogin() {
-  const userToken = useMusicStore((state) => state.userToken);
-  const setUserToken = useMusicStore((state) => state.setUserToken);
-  const [musicKitReady, setMusicKitReady] = useState(false);
-  const musicKitInstance = useRef<MusicKitInstance | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://js-cdn.music.apple.com/musickit/v1/musickit.js";
-    script.async = true;
-    document.body.appendChild(script);
+    if (typeof window === "undefined") return;
 
-    const onMusicKitLoaded = () => {
-      // Configure and save the instance
-      musicKitInstance.current = window.MusicKit.configure({
-        developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN,
-        app: {
-          name: "My Music App",
-          build: "1.0.0",
-        },
-      });
-      setMusicKitReady(true);
-    };
-
-    document.addEventListener("musickitloaded", onMusicKitLoaded);
-    return () => {
-      document.removeEventListener("musickitloaded", onMusicKitLoaded);
-    };
+    // Load MusicKit
+    window.MusicKit.configure({
+      developerToken: process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN!, // Set via .env
+      app: {
+        name: "PlaylistXfer",
+        build: "1.0",
+      },
+    });
   }, []);
 
-  const handleLogin = async () => {
-    if (!musicKitReady || !musicKitInstance.current) return;
-    try {
-      const token = await musicKitInstance.current.authorize();
-      setUserToken(token);
-      console.log("🎵 Music User Token saved in Zustand:", token);
-    } catch (error) {
-      console.error("Authorization failed or popup blocked:", error);
-    }
+  const handleAppleLogin = async () => {
+    const music = window.MusicKit.getInstance();
+    const token = await music.authorize(); // Triggers Apple sign-in
+
+    console.log("Apple Music user token:", token);
+    setIsAuthorized(true);
+
+    // Send token to your server
+    await fetch("/api/auth/apple", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+
+    // Optional: redirect or trigger app logic
+    // window.location.href = "/dashboard/apple";
   };
 
-  if (userToken) {
-    return (
-      <div className="flex items-center">
-        <span className="text-white font-semibold">
-          ✓ Apple Music logged in
-        </span>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <button
-        onClick={handleLogin}
-        disabled={!musicKitReady}
-        className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-semibold py-2 px-4 rounded shadow hover:shadow-lg transition-shadow duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Login with Apple Music
-      </button>
-      {!musicKitReady && <p>Loading Apple Music...</p>}
-    </div>
+    <button
+      onClick={handleAppleLogin}
+      className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+    >
+      {isAuthorized ? "Authorized 🎶" : "Connect Apple Music"}
+    </button>
   );
 }

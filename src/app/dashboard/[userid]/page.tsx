@@ -6,6 +6,13 @@ export default async function Page() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("spotify_access_token")?.value;
 
+  const cookieStoreApple = await cookies();
+  const appleToken = cookieStoreApple.get("apple_music_token")?.value;
+
+  if (!appleToken) {
+    return <p>Error: No Apple Music token found. Please log in again.</p>;
+  }
+
   if (!accessToken) {
     return <p>Error: No access token found. Please log in again.</p>;
   }

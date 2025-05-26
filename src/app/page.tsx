@@ -1,4 +1,5 @@
 import Button from "@/components/Button";
+import AppleMusicLogin from "@/components/Apple";
 
 export default function Home() {
   return (
@@ -7,6 +8,7 @@ export default function Home() {
         <h1 className="text-4xl font-bold">Welcome to altern</h1>
         <p>transfer apps from apple music to spotify</p>
         <Button>Link Spotify</Button>
+        <AppleMusicLogin />
       </div>
     </main>
   );

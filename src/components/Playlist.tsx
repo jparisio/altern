@@ -6,11 +6,10 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useMusicStore } from "@/store/musicStore";
 
-const userToken = useMusicStore((state) => state.userToken);
-
-console.log("🎵 User Token from Zustand:", userToken);
-
 export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
+  const userToken = useMusicStore((state) => state.userToken);
+
+  console.log("🎵 User Token from Zustand:", userToken);
   return (
     <div
       key={playlist.id}

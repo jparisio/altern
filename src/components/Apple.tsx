@@ -4,8 +4,17 @@ import { useMusicStore } from "@/store/musicStore";
 
 declare global {
   interface Window {
-    MusicKit: any;
+    MusicKit: {
+      configure: (config: {
+        developerToken: string | undefined;
+        app: { name: string; build: string };
+      }) => MusicKitInstance;
+    };
   }
+}
+
+interface MusicKitInstance {
+  authorize: () => Promise<string>;
 }
 
 export default function AppleMusicLogin() {

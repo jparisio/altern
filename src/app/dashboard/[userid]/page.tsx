@@ -1,10 +1,13 @@
 import { cookies } from "next/headers";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Playlist from "@/components/Playlist";
-import { AppleMusicPlaylist } from "@/lib/types/appleTypes";
+import {
+  AppleMusicPlaylist,
+  AppleMusicPlaylistsResponse,
+} from "@/lib/types/appleTypes";
 
 export default async function Page() {
-  const cookieStore = await cookies(); // don't need await
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get("spotify_access_token")?.value;
   const appleUserToken = cookieStore.get("apple_music_token")?.value;
   const appleDevToken = process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN;
@@ -43,11 +46,11 @@ export default async function Page() {
   );
 
   if (!appleRes.ok) {
-    console.error("Failed to fetch Apple playlists", await appleRes.text());
-  } else {
-    const applePlaylists: AppleMusicPlaylist = await appleRes.json();
-    console.log("🍎 Apple Music playlists:", applePlaylists);
+    return <p>Error fetching Spotify playlists: {appleRes.statusText}</p>;
   }
+
+  const applePlaylists: AppleMusicPlaylistsResponse = await appleRes.json();
+  console.log("🍎 Apple Music playlists:", applePlaylists);
 
   return (
     <main className="flex min-h-screen flex-col items-center p-8">
@@ -61,6 +64,40 @@ export default async function Page() {
           {playlists.map((playlist) => (
             <Playlist key={playlist.id} playlist={playlist} />
           ))}
+        </div>
+      </div>
+
+      <div className="w-full max-w-4xl mt-12">
+        <h2 className="text-xl font-bold mb-4">Your Apple Music Playlists</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {applePlaylists.data.map((playlist: any) => {
+            const artwork = playlist.attributes?.artwork;
+            const imageUrl = artwork?.url
+              ?.replace("{w}", "300")
+              ?.replace("{h}", "300");
+
+            return (
+              <div
+                key={playlist.id}
+                className="bg-white rounded-lg shadow p-4 flex flex-col items-center"
+              >
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={playlist.attributes?.name || "Apple Playlist"}
+                    className="rounded-md w-full h-auto mb-2"
+                  />
+                ) : (
+                  <div className="w-full h-[300px] bg-gray-200 rounded-md mb-2 flex items-center justify-center">
+                    <span className="text-gray-500">No Image</span>
+                  </div>
+                )}
+                <p className="text-center font-semibold">
+                  {playlist.attributes?.name || "Untitled"}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </main>

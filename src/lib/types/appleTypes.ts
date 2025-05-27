@@ -35,3 +35,10 @@ export interface AppleMusicPlaylist {
   attributes?: PlaylistAttributes;
   relationships?: PlaylistRelationships;
 }
+
+export interface AppleMusicPlaylistsResponse {
+  data: AppleMusicPlaylist[];
+  meta: {
+    total: number;
+  };
+}

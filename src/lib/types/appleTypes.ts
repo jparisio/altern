@@ -42,3 +42,38 @@ export interface AppleMusicPlaylistsResponse {
     total: number;
   };
 }
+
+export interface AppleMusicTrackAttributes {
+  name: string;
+  durationInMillis?: number;
+  artistName?: string;
+  artistNames?: string[];
+  artists?: Array<{ name: string }>;
+}
+
+export interface AppleMusicTrackData {
+  id: string;
+  type: string;
+  attributes: AppleMusicTrackAttributes;
+}
+
+export interface AppleMusicTracksResponse {
+  data: AppleMusicTrackData[];
+  next?: string; // pagination url if any
+  links?: {
+    next?: string;
+  };
+}
+
+export interface ExportedTrack {
+  id: string;
+  name: string;
+  artists: string[];
+  durationMs: number;
+}
+
+export interface ExportTracksResponse {
+  exportId: string;
+  tracksCount: number;
+  tracks: ExportedTrack[];
+}

@@ -17,10 +17,7 @@ export default function ApplePlaylist({
   const [isExporting, setIsExporting] = useState(false);
   const router = useRouter();
 
-  console.log(
-    "🍎 Apple Music playlist tracks:",
-    playlist.relationships?.tracks?.href
-  );
+  console.log("🍎 Apple Music playlist tracks:", playlist.id);
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -29,7 +26,7 @@ export default function ApplePlaylist({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          playlistTracksHref: playlist.relationships?.tracks?.href,
+          playlistId: playlist.id,
         }),
       });
 

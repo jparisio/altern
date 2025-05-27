@@ -17,6 +17,11 @@ export default function ApplePlaylist({
   const [isExporting, setIsExporting] = useState(false);
   const router = useRouter();
 
+  console.log(
+    "🍎 Apple Music playlist tracks:",
+    playlist.relationships?.tracks?.href
+  );
+
   const handleExport = async () => {
     setIsExporting(true);
     try {

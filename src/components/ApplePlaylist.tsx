@@ -61,8 +61,9 @@ export default function ApplePlaylist({
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-4">Export Playlist</h2>
             <p className="mb-4">
-              Exporting the playlist "{playlist.attributes?.name || "Untitled"}"
-              .
+              Exporting the playlist {playlist.attributes?.name || "Untitled"}{" "}
+              to Apple Music will create a new playlist in your Apple Music
+              library.
             </p>
             <Link
               href={`/export/apple/${playlist.id}`}

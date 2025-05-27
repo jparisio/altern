@@ -5,6 +5,7 @@ import { searchSpotifyTrack } from "@/lib/spotify/searchTracks";
 export async function exportToSpotifyClientSide({
   tracks,
   playlistId,
+  accessToken,
   onProgress,
 }: {
   tracks: ExportedTrack[];

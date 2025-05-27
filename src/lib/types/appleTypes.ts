@@ -53,16 +53,19 @@ export interface AppleMusicTrackAttributes {
 
 export interface AppleMusicTrackData {
   id: string;
-  type: string;
-  attributes: AppleMusicTrackAttributes;
+  attributes?: {
+    name: string;
+    durationInMillis?: number;
+    artistName?: string;
+    artists?: { name: string }[];
+    artistNames?: string[];
+  };
 }
 
 export interface AppleMusicTracksResponse {
   data: AppleMusicTrackData[];
-  next?: string; // pagination url if any
-  links?: {
-    next?: string;
-  };
+  next?: string;
+  links?: { next?: string };
 }
 
 export interface ExportedTrack {

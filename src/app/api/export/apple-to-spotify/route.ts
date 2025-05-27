@@ -1,97 +1,36 @@
-import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
-import type {
-  AppleMusicTracksResponse,
-  AppleMusicTrackData,
-  ExportedTrack,
-  ExportTracksResponse,
-} from "@/lib/types/appleTypes";
+import { getAppleMusicTracks } from "@/lib/appleMusic/fetchTracks";
+import type { ExportTracksResponse } from "@/lib/types/appleTypes";
+import { getAuthCookies } from "@/lib/utils/getCookies";
 
 export async function POST(req: NextRequest) {
-  const body: { playlistId?: string } = await req.json();
-  const playlistId = body.playlistId;
+  const { playlistId }: { playlistId?: string } = await req.json();
 
   if (!playlistId) {
-    return new Response(JSON.stringify({ error: "Missing playlistId" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json({ error: "Missing playlistId" }, { status: 400 });
   }
 
-  const cookieStore = await cookies();
-  const appleUserToken = cookieStore.get("apple_music_token")?.value;
+  const { appleUserToken, spotifyAccessToken } = await getAuthCookies();
   const appleDevToken = process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN;
 
-  if (!appleUserToken || !appleDevToken) {
-    return new Response(
-      JSON.stringify({
-        error: "Missing Apple Music tokens. Please log in again.",
-      }),
-      { status: 401, headers: { "Content-Type": "application/json" } }
+  if (!appleUserToken || !appleDevToken || !spotifyAccessToken) {
+    return Response.json(
+      { error: "Missing Apple Music tokens" },
+      { status: 401 }
     );
   }
 
-  const allTracks: ExportedTrack[] = [];
-  let url:
-    | string
-    | null = `https://api.music.apple.com/v1/me/library/playlists/${playlistId}/tracks`;
-
-  while (url) {
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${appleDevToken}`,
-        "Music-User-Token": appleUserToken,
-      },
-    });
-
-    if (!res.ok) {
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch Apple Music tracks" }),
-        { status: res.status, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    const data: AppleMusicTracksResponse = await res.json();
-
-    data.data.forEach((item: AppleMusicTrackData) => {
-      const attributes = item.attributes;
-      if (!attributes) return;
-
-      const trackName = attributes.name || "Untitled";
-      const durationMs = attributes.durationInMillis ?? 0;
-
-      let artistNames: string[] = [];
-
-      if (attributes.artistName) {
-        artistNames = [attributes.artistName];
-      } else if (attributes.artists && Array.isArray(attributes.artists)) {
-        artistNames = attributes.artists.map((a) => a.name);
-      } else if (
-        attributes.artistNames &&
-        Array.isArray(attributes.artistNames)
-      ) {
-        artistNames = attributes.artistNames;
-      }
-
-      allTracks.push({
-        id: item.id,
-        name: trackName,
-        artists: artistNames,
-        durationMs,
-      });
-    });
-
-    url = data.next ?? data.links?.next ?? null;
-  }
+  const tracks = await getAppleMusicTracks(
+    playlistId,
+    appleUserToken,
+    appleDevToken
+  );
 
   const responsePayload: ExportTracksResponse = {
     exportId: "fake-export-id-123",
-    tracksCount: allTracks.length,
-    tracks: allTracks,
+    tracksCount: tracks.length,
+    tracks,
   };
 
-  return new Response(JSON.stringify(responsePayload), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json(responsePayload);
 }

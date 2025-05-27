@@ -1,5 +1,5 @@
-import Button from "@/components/Button";
-import AppleMusicLogin from "@/components/Apple";
+import Button from "@/components/SpotifyAuthButton";
+import AppleMusicLogin from "@/components/AppleAuthButton";
 
 export default function Home() {
   return (

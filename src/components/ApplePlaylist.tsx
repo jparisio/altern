@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { exportToSpotifyClientSide } from "./ExportToSpotifyClient";
+import { exportToSpotifyClientSide } from "@/lib/spotify/ExportToSpotifyClient";
 
 export default function ApplePlaylist({
   playlist,

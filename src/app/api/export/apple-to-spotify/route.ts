@@ -78,6 +78,7 @@ export async function POST(req: NextRequest) {
       playlistUrl: newPlaylist.external_urls?.spotify,
       playlistId: newPlaylist.id,
       tracks: tracks,
+      spotifyAccessToken: spotifyAccessToken,
     },
     { status: 201 }
   );

@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { exportToSpotifyClientSide } from "./ExportToSpotifyClient";
-import { getAuthCookies } from "@/lib/utils/getCookies";
 
 export default function ApplePlaylist({
   playlist,
@@ -32,9 +31,8 @@ export default function ApplePlaylist({
         }),
       });
 
-      const { spotifyAccessToken } = await getAuthCookies();
-
-      const { playlistId, playlistUrl, tracks } = await res.json();
+      const { playlistId, playlistUrl, tracks, spotifyAccessToken } =
+        await res.json();
 
       const result = await exportToSpotifyClientSide({
         tracks,

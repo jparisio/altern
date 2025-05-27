@@ -5,6 +5,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { exportToSpotifyClientSide } from "./ExportToSpotifyClient";
+import { getAuthCookies } from "@/lib/utils/getCookies";
 
 export default function ApplePlaylist({
   playlist,
@@ -30,12 +32,25 @@ export default function ApplePlaylist({
         }),
       });
 
-      const data = await res.json();
+      const { spotifyAccessToken } = await getAuthCookies();
+
+      const { playlistId, playlistUrl, tracks } = await res.json();
+
+      const result = await exportToSpotifyClientSide({
+        tracks,
+        playlistId,
+        accessToken: spotifyAccessToken || "",
+        onProgress: (status) => {
+          console.log(`Matched: ${status.matched}, Failed: ${status.failed}`);
+        },
+      });
+
+      console.log("Export done:", playlistUrl);
 
       if (res.ok) {
         router.push(`/dashboard/export-status`);
       } else {
-        console.error("Export failed:", data.error);
+        console.error("Export failed:", result);
         alert("Failed to export playlist. Please try again later.");
         setIsExporting(false);
       }

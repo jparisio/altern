@@ -72,34 +72,45 @@ export async function POST(req: NextRequest) {
     playlistOptions
   );
 
-  console.log("Created Spotify playlist:", newPlaylist);
-
-  // SEARCH TRACKS ON SPOTIFY
-
-  const matchedURIs: string[] = [];
-  const failedMatches: string[] = [];
-
-  for (const track of tracks) {
-    const query = `${track.name} ${track.artists[0]}`;
-    const result = await searchSpotifyTrack(query, spotifyAccessToken);
-    if (result?.uri) {
-      matchedURIs.push(result.uri);
-    } else {
-      failedMatches.push(`${track.name} - ${track.artists.join(", ")}`);
-    }
-
-    // Optional: Add slight delay for rate limits
-    await new Promise((r) => setTimeout(r, 50));
-  }
-
-  //ADD TRACKS TO SPOTIFY PLAYLIST
-  await addSpotifyTrack(newPlaylist.id, matchedURIs, spotifyAccessToken);
-
-  return Response.json({
-    success: true,
-    playlistUrl: newPlaylist.external_urls?.spotify,
-    matched: matchedURIs.length,
-    failed: failedMatches.length,
-    failedTracks: failedMatches,
-  });
+  return Response.json(
+    {
+      success: true,
+      playlistUrl: newPlaylist.external_urls?.spotify,
+      playlistId: newPlaylist.id,
+      tracks: tracks,
+    },
+    { status: 201 }
+  );
 }
+
+//   console.log("Created Spotify playlist:", newPlaylist);
+
+// SEARCH TRACKS ON SPOTIFY
+
+//   const matchedURIs: string[] = [];
+//   const failedMatches: string[] = [];
+
+//   for (const track of tracks) {
+//     const query = `${track.name} ${track.artists[0]}`;
+//     const result = await searchSpotifyTrack(query, spotifyAccessToken);
+//     if (result?.uri) {
+//       matchedURIs.push(result.uri);
+//     } else {
+//       failedMatches.push(`${track.name} - ${track.artists.join(", ")}`);
+//     }
+
+//     // Optional: Add slight delay for rate limits
+//     await new Promise((r) => setTimeout(r, 50));
+//   }
+
+//   //ADD TRACKS TO SPOTIFY PLAYLIST
+//   await addSpotifyTrack(newPlaylist.id, matchedURIs, spotifyAccessToken);
+
+//   return Response.json({
+//     success: true,
+//     playlistUrl: newPlaylist.external_urls?.spotify,
+//     matched: matchedURIs.length,
+//     failed: failedMatches.length,
+//     failedTracks: failedMatches,
+//   });
+// }

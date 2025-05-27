@@ -51,7 +51,16 @@ export async function getAppleMusicTracks(
       });
     });
 
-    url = data.next ?? data.links?.next ?? null;
+    const base = "https://api.music.apple.com";
+    url = data.next
+      ? data.next.startsWith("http")
+        ? data.next
+        : `${base}${data.next}`
+      : data.links?.next?.startsWith("http")
+      ? data.links?.next
+      : data.links?.next
+      ? `${base}${data.links.next}`
+      : null;
   }
 
   return allTracks;

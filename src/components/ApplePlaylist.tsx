@@ -96,6 +96,9 @@ export default function ApplePlaylist({
               <strong>{playlist.attributes?.name || "Untitled"}</strong> to
               Spotify will create a new playlist in your Spotify library.
             </p>
+            <span className="block text-xs text-gray-500 mb-2">
+              This may take a minute…
+            </span>
             <button
               onClick={handleExport}
               disabled={isExporting}

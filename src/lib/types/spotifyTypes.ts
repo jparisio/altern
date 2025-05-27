@@ -1,3 +1,9 @@
+export interface CreatePlaylistOptions {
+  name: string;
+  description?: string;
+  isPublic?: boolean;
+}
+
 export interface SpotifyImage {
   url: string;
   height: number | null;

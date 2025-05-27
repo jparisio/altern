@@ -25,6 +25,8 @@ export default function ApplePlaylist({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           playlistId: playlist.id,
+          playlistName: playlist.attributes?.name || "Untitled",
+          playlistDescription: playlist.attributes?.description || "",
         }),
       });
 

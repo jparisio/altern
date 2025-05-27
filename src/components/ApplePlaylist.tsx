@@ -31,7 +31,7 @@ export default function ApplePlaylist({
       const data = await res.json();
 
       if (res.ok) {
-        router.push(`/export-status`);
+        router.push(`/dashboard/export-status`);
       } else {
         console.error("Export failed:", data.error);
         alert("Failed to export playlist. Please try again later.");

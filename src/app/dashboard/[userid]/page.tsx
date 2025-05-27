@@ -1,11 +1,11 @@
 import { cookies } from "next/headers";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
-import Playlist from "@/components/Playlist";
+import Playlist from "@/components/SpotifyPlaylist";
+import ApplePlaylist from "@/components/ApplePlaylist";
 import {
   AppleMusicPlaylistsResponse,
   AppleMusicPlaylist,
 } from "@/lib/types/appleTypes";
-import Image from "next/image";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -22,18 +22,18 @@ export default async function Page() {
   }
 
   // 🟢 Fetch Spotify playlists
-  const playlistsRes = await fetch("https://api.spotify.com/v1/me/playlists", {
+  const spotifyRes = await fetch("https://api.spotify.com/v1/me/playlists", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
 
-  if (!playlistsRes.ok) {
-    return <p>Error fetching Spotify playlists: {playlistsRes.statusText}</p>;
+  if (!spotifyRes.ok) {
+    return <p>Error fetching Spotify playlists: {spotifyRes.statusText}</p>;
   }
 
-  const playlistsData = await playlistsRes.json();
-  const playlists: SpotifyPlaylist[] = playlistsData.items;
+  const spotifyPlaylistData = await spotifyRes.json();
+  const SpotifyPlaylists: SpotifyPlaylist[] = spotifyPlaylistData.items;
 
   // 🍎 Fetch Apple Music playlists (user library playlists)
   const appleRes = await fetch(
@@ -51,7 +51,7 @@ export default async function Page() {
   }
 
   const applePlaylists: AppleMusicPlaylistsResponse = await appleRes.json();
-  console.log("🍎 Apple Music playlists:", applePlaylists);
+  // console.log("🍎 Apple Music playlists:", applePlaylists);
 
   return (
     <main className="flex min-h-screen flex-col items-center p-8">
@@ -62,7 +62,7 @@ export default async function Page() {
       <div className="w-full max-w-4xl">
         <h2 className="text-xl font-bold mb-4">Your Spotify Playlists</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {playlists.map((playlist) => (
+          {SpotifyPlaylists.map((playlist) => (
             <Playlist key={playlist.id} playlist={playlist} />
           ))}
         </div>
@@ -71,34 +71,9 @@ export default async function Page() {
       <div className="w-full max-w-4xl mt-12">
         <h2 className="text-xl font-bold mb-4">Your Apple Music Playlists</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {applePlaylists.data.map((playlist: AppleMusicPlaylist) => {
-            const artwork = playlist.attributes?.artwork;
-            const imageUrl = artwork?.url
-              ?.replace("{w}", "300")
-              ?.replace("{h}", "300");
-
-            return (
-              <div
-                key={playlist.id}
-                className="bg-white rounded-lg shadow p-4 flex flex-col items-center"
-              >
-                {imageUrl ? (
-                  <Image
-                    src={imageUrl}
-                    alt={playlist.attributes?.name || "Apple Playlist"}
-                    className="rounded-md w-full h-auto mb-2"
-                  />
-                ) : (
-                  <div className="w-full h-[300px] bg-gray-200 rounded-md mb-2 flex items-center justify-center">
-                    <span className="text-gray-500">No Image</span>
-                  </div>
-                )}
-                <p className="text-center font-semibold">
-                  {playlist.attributes?.name || "Untitled"}
-                </p>
-              </div>
-            );
-          })}
+          {applePlaylists.data.map((playlist: AppleMusicPlaylist) => (
+            <ApplePlaylist key={playlist.id} playlist={playlist} />
+          ))}
         </div>
       </div>
     </main>

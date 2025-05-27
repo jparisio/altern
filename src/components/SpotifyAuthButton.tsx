@@ -1,5 +1,5 @@
 "use client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 export default function SpotifyAuthButton() {
   const handleClick = () => {
     window.location.href = "/api/login";

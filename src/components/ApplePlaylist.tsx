@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import FadeInText from "./FadeInText";
 
 export default function ApplePlaylist({
   playlist,

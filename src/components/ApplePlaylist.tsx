@@ -23,7 +23,9 @@ export default function ApplePlaylist({
       const res = await fetch("/api/export/apple-to-spotify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ playlistId: playlist.id }),
+        body: JSON.stringify({
+          playlistTracksHref: playlist.relationships?.tracks?.href,
+        }),
       });
 
       const data = await res.json();

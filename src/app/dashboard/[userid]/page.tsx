@@ -8,9 +8,15 @@ import {
 } from "@/lib/types/appleTypes";
 import FadeInText from "@/components/FadeInText";
 
-export default async function Page({ params }: { params: { userid: string } }) {
+export default async function UserDashboard({
+  params,
+}: {
+  params: { userid: string };
+}) {
   const { appleUserToken, spotifyAccessToken } = await getAuthCookies();
   const appleDevToken = process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN;
+
+  const { userid } = await params;
 
   if (!appleUserToken || !appleDevToken) {
     return <p>Error: Missing Apple Music tokens. Please log in again.</p>;
@@ -55,7 +61,7 @@ export default async function Page({ params }: { params: { userid: string } }) {
   return (
     <main className="flex min-h-screen flex-col items-center p-8 relative">
       <div className="flex flex-col items-center justify-center mb-10">
-        <FadeInText className="text-6xl ">Welcome, {params.userid}!</FadeInText>
+        <FadeInText className="text-6xl ">Welcome, {userid}!</FadeInText>
       </div>
 
       <div className="w-full max-w-4xl">

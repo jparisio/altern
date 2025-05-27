@@ -5,6 +5,8 @@ import { getAuthCookies } from "@/lib/utils/getCookies";
 // import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import type { CreatePlaylistOptions } from "@/lib/types/spotifyTypes";
 import { createSpotifyPlaylist } from "@/lib/spotify/createPlaylists";
+import { addSpotifyTrack } from "@/lib/spotify/addSpotifyTrack";
+import { searchSpotifyTrack } from "@/lib/spotify/searchTracks";
 
 export async function POST(req: NextRequest) {
   const {
@@ -66,18 +68,39 @@ export async function POST(req: NextRequest) {
     isPublic: false,
   };
   const newPlaylist = await createSpotifyPlaylist(
-    spotifyUserId, // Replace with actual Spotify user ID
+    spotifyUserId,
     spotifyAccessToken,
     playlistOptions
   );
 
   console.log("Created Spotify playlist:", newPlaylist);
 
-  const responsePayload: ExportTracksResponse = {
-    exportId: "fake-export-id-123",
-    tracksCount: tracks.length,
-    tracks,
-  };
+  // SEARCH TRACKS ON SPOTIFY
 
-  return Response.json(responsePayload);
+  const matchedURIs: string[] = [];
+  let failedMatches: string[] = [];
+
+  for (const track of tracks) {
+    const query = `${track.name} ${track.artists[0]}`;
+    const result = await searchSpotifyTrack(query, spotifyAccessToken);
+    if (result?.uri) {
+      matchedURIs.push(result.uri);
+    } else {
+      failedMatches.push(`${track.name} - ${track.artists.join(", ")}`);
+    }
+
+    // Optional: Add slight delay for rate limits
+    await new Promise((r) => setTimeout(r, 50));
+  }
+
+  //ADD TRACKS TO SPOTIFY PLAYLIST
+  await addSpotifyTrack(newPlaylist.id, matchedURIs, spotifyAccessToken);
+
+  return Response.json({
+    success: true,
+    playlistUrl: newPlaylist.external_urls?.spotify,
+    matched: matchedURIs.length,
+    failed: failedMatches.length,
+    failedTracks: failedMatches,
+  });
 }

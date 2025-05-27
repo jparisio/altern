@@ -17,8 +17,6 @@ export default function ApplePlaylist({
   const [isExporting, setIsExporting] = useState(false);
   const router = useRouter();
 
-  console.log("🍎 Apple Music playlist tracks:", playlist.id);
-
   const handleExport = async () => {
     setIsExporting(true);
     try {
@@ -34,6 +32,7 @@ export default function ApplePlaylist({
 
       if (res.ok) {
         router.push(`/export-status/${data.exportId}`);
+        console.log("Export successful:", data);
       } else {
         console.error("Export failed:", data.error);
         alert("Failed to export playlist. Please try again later.");

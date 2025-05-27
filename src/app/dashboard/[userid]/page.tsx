@@ -8,10 +8,10 @@ import {
 } from "@/lib/types/appleTypes";
 import FadeInText from "@/components/FadeInText";
 
-export default async function UserDashboard({
+export default async function Page({
   params,
 }: {
-  params: { userid: string };
+  params: Promise<{ userid: string }>;
 }) {
   const { appleUserToken, spotifyAccessToken } = await getAuthCookies();
   const appleDevToken = process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN;

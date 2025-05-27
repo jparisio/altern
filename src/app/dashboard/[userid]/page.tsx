@@ -55,11 +55,11 @@ export default async function Page() {
   return (
     <main className="flex min-h-screen flex-col items-center p-8 relative">
       <div className="flex flex-col items-center justify-center mb-10">
-        <FadeInText className="text-4xl font-bold">Welcome, User!</FadeInText>
+        <FadeInText className="text-6xl font-bold">Welcome, User!</FadeInText>
       </div>
 
-      <div className="w-full max-w-6xl">
-        <FadeInText className="text-xl font-bold mb-4">
+      <div className="w-full max-w-4xl">
+        <FadeInText className="text-4xl font-bold mb-4">
           Your Spotify Playlists
         </FadeInText>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -69,8 +69,8 @@ export default async function Page() {
         </div>
       </div>
 
-      <div className="w-full max-w-6xl mt-12 ">
-        <FadeInText className="text-xl font-bold mb-4">
+      <div className="w-full max-w-4xl mt-12 ">
+        <FadeInText className="text-4xl font-bold mb-4">
           Your Apple Music Playlists
         </FadeInText>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

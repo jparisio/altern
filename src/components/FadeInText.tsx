@@ -21,13 +21,13 @@ export default function FadeInText({
     },
   };
   return (
-    <motion.h1
+    <motion.div
       initial="initial"
       animate="animate"
       variants={textVariants}
       className={`${className}`}
     >
       {children}
-    </motion.h1>
+    </motion.div>
   );
 }

@@ -2,9 +2,9 @@
 
 import { AppleMusicPlaylist } from "@/lib/types/appleTypes";
 import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ApplePlaylist({
   playlist,
@@ -14,6 +14,33 @@ export default function ApplePlaylist({
   const artwork = playlist.attributes?.artwork;
   const imageUrl = artwork?.url?.replace("{w}", "300")?.replace("{h}", "300");
   const [modal, setModal] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const router = useRouter();
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const res = await fetch("/api/export/apple-to-spotify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playlistId: playlist.id }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        router.push(`/export-status/${data.exportId}`);
+      } else {
+        console.error("Export failed:", data.error);
+        alert("Failed to export playlist. Please try again later.");
+        setIsExporting(false);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("Something went wrong. Please try again.");
+      setIsExporting(false);
+    }
+  };
 
   return (
     <>
@@ -45,7 +72,6 @@ export default function ApplePlaylist({
           <h3 className="font-semibold text-gray-800 dark:text-white text-base mb-1 line-clamp-1">
             {playlist.attributes?.name || "Untitled"}
           </h3>
-          {/* Apple Music playlists don’t have track count by default, so omit or add if available */}
         </div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <button
@@ -56,27 +82,42 @@ export default function ApplePlaylist({
           </button>
         </motion.div>
       </div>
+
       {modal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-4">Export Playlist</h2>
             <p className="mb-4">
-              Exporting the playlist {playlist.attributes?.name || "Untitled"}{" "}
-              to Apple Music will create a new playlist in your Apple Music
-              library.
+              Exporting the playlist{" "}
+              <strong>{playlist.attributes?.name || "Untitled"}</strong> to
+              Spotify will create a new playlist in your Spotify library.
             </p>
-            <Link
-              href={`/export/apple/${playlist.id}`}
-              className="block w-full py-2 bg-blue-500 text-white text-sm font-medium text-center hover:bg-blue-600 transition-colors rounded"
-            >
-              Confirm Export
-            </Link>
             <button
-              className="mt-4 w-full py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white text-sm font-medium text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors rounded"
-              onClick={() => setModal(false)}
+              onClick={handleExport}
+              disabled={isExporting}
+              className={`block w-full py-2 text-white text-sm font-medium text-center rounded transition-colors ${
+                isExporting
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              }`}
             >
-              Cancel
+              {isExporting ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Exporting...</span>
+                </div>
+              ) : (
+                "Confirm Export"
+              )}
             </button>
+            {!isExporting && (
+              <button
+                className="mt-4 w-full py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white text-sm font-medium text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors rounded"
+                onClick={() => setModal(false)}
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </div>
       )}

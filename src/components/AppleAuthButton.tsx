@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import SpotifyAuthButton from "@/components/SpotifyAuthButton";
 
 declare global {
   interface Window {
@@ -48,17 +49,19 @@ export default function AppleAuthButton() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }),
     });
-
-    // Optional: redirect or trigger app logic
-    // window.location.href = "/dashboard/apple";
   };
 
   return (
-    <button
-      onClick={handleAppleLogin}
-      className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-    >
-      {isAuthorized ? "Authorized 🎶" : "Connect Apple Music"}
-    </button>
+    <>
+      <button
+        onClick={handleAppleLogin}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+      >
+        {isAuthorized ? "Apple Music Authorized 🎶" : "Connect Apple Music"}
+      </button>
+
+      {/* Only show Spotify button after Apple Music is authorized */}
+      {isAuthorized && <SpotifyAuthButton />}
+    </>
   );
 }

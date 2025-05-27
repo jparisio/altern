@@ -50,9 +50,9 @@ export default function ApplePlaylist({
     <>
       <motion.div
         className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg  flex flex-col h-full border border-gray-200 dark:border-gray-700"
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.75, ease: [0.76, 0, 0.24, 1] }}
+        transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
       >
         <div className="relative w-full pt-[100%] bg-gray-100 dark:bg-gray-700">
           {imageUrl ? (
@@ -94,13 +94,13 @@ export default function ApplePlaylist({
         {modal && (
           <motion.div
             className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ y: 50 }}
             animate={{
               opacity: 1,
               y: 0,
-              transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] },
+              transition: { duration: 0.4, ease: [0.76, 0, 0.24, 1] },
             }}
-            exit={{ opacity: 0, y: 50 }}
+            exit={{ y: 50 }}
           >
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
               <h2 className="text-lg font-semibold mb-4">Export Playlist</h2>

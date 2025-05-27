@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { getAppleMusicTracks } from "@/lib/appleMusic/fetchTracks";
-import type { ExportTracksResponse } from "@/lib/types/appleTypes";
 import { getAuthCookies } from "@/lib/utils/getCookies";
 // import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import type { CreatePlaylistOptions } from "@/lib/types/spotifyTypes";
@@ -78,7 +77,7 @@ export async function POST(req: NextRequest) {
   // SEARCH TRACKS ON SPOTIFY
 
   const matchedURIs: string[] = [];
-  let failedMatches: string[] = [];
+  const failedMatches: string[] = [];
 
   for (const track of tracks) {
     const query = `${track.name} ${track.artists[0]}`;

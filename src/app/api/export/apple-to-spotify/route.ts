@@ -7,10 +7,15 @@ import type { CreatePlaylistOptions } from "@/lib/types/spotifyTypes";
 import { createSpotifyPlaylist } from "@/lib/spotify/createPlaylists";
 
 export async function POST(req: NextRequest) {
-  const { playlistId }: { playlistId?: string } = await req.json();
-  const { playlistName }: { playlistName?: string } = await req.json();
-  const { playlistDescription }: { playlistDescription?: string } =
-    await req.json();
+  const {
+    playlistId,
+    playlistName,
+    playlistDescription,
+  }: {
+    playlistId?: string;
+    playlistName?: string;
+    playlistDescription?: string;
+  } = await req.json();
 
   if (!playlistId) {
     return Response.json({ error: "Missing playlistId" }, { status: 400 });
@@ -26,19 +31,42 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // GRAB APPLE MUSIC TRACKS
+  // Fetch tracks from the specified Apple Music playlist
+
   const tracks = await getAppleMusicTracks(
     playlistId,
     appleUserToken,
     appleDevToken
   );
 
+  //GET SPOTIFY USER ID
+  const profileRes = await fetch("https://api.spotify.com/v1/me", {
+    headers: {
+      Authorization: `Bearer ${spotifyAccessToken}`,
+    },
+  });
+
+  if (!profileRes.ok) {
+    return Response.json(
+      { error: "Failed to fetch Spotify user profile" },
+      { status: profileRes.status }
+    );
+  }
+
+  const profile = await profileRes.json();
+  const spotifyUserId = profile.id;
+
+  // CREATE SPOTIFY PLAYLIST
+  // Define the options for creating a new Spotify playlist
+
   const playlistOptions: CreatePlaylistOptions = {
     name: playlistName || "Apple Music Export",
     description: playlistDescription || "Exported from Apple Music",
     isPublic: false,
   };
-  const newPlaylist = createSpotifyPlaylist(
-    "spotify-user-id", // Replace with actual Spotify user ID
+  const newPlaylist = await createSpotifyPlaylist(
+    spotifyUserId, // Replace with actual Spotify user ID
     spotifyAccessToken,
     playlistOptions
   );

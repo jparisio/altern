@@ -64,7 +64,8 @@ export default function ApplePlaylist({
               <Image
                 src={"/music-note.svg"}
                 alt="music-note"
-                className="object-cover absolute inset-0 bg-gray-200 dark:bg-gray-700"
+                width={64}
+                height={64}
               />
             </div>
           )}
@@ -92,7 +93,7 @@ export default function ApplePlaylist({
             animate={{
               opacity: 1,
               y: 0,
-              transition: { duration: 0.6, ease: [0.76, 0, 0.24, 1] },
+              transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] },
             }}
             exit={{ opacity: 0, y: 50 }}
           >
@@ -108,7 +109,9 @@ export default function ApplePlaylist({
                   This may take a minute…
                 </span>
               )}
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleExport}
                 disabled={isExporting}
                 className={`block w-full py-2 text-white text-sm font-medium text-center rounded transition-colors ${
@@ -125,14 +128,16 @@ export default function ApplePlaylist({
                 ) : (
                   "Confirm Export"
                 )}
-              </button>
+              </motion.button>
               {!isExporting && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   className="mt-4 w-full py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white text-sm font-medium text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors rounded"
                   onClick={() => setModal(false)}
                 >
                   Cancel
-                </button>
+                </motion.button>
               )}
             </div>
           </motion.div>

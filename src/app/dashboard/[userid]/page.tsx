@@ -54,7 +54,7 @@ export default async function Page() {
   // console.log("🍎 Apple Music playlists:", applePlaylists);
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8">
+    <main className="flex min-h-screen flex-col items-center p-8 relative">
       <div className="flex flex-col items-center justify-center mb-10">
         <h1 className="text-2xl font-bold">Welcome, User!</h1>
       </div>
@@ -68,7 +68,7 @@ export default async function Page() {
         </div>
       </div>
 
-      <div className="w-full max-w-4xl mt-12">
+      <div className="w-full max-w-4xl mt-12 ">
         <h2 className="text-xl font-bold mb-4">Your Apple Music Playlists</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {applePlaylists.data.map((playlist: AppleMusicPlaylist) => (

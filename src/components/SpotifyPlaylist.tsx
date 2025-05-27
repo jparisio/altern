@@ -20,14 +20,11 @@ export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700">
-            <svg
-              className="w-12 h-12 text-gray-400"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 16.5c1.38 0 2.5-1.12 2.5-2.5 0-1.38-1.12-2.5-2.5-2.5-1.38 0-2.5 1.12-2.5 2.5 0 1.38 1.12 2.5 2.5 2.5z" />
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-            </svg>
+            <Image
+              src={"/music-note.svg"}
+              alt="music-note"
+              className="object-cover absolute inset-0 bg-gray-200 dark:bg-gray-700"
+            />
           </div>
         )}
       </div>

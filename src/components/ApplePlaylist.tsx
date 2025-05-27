@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import FadeInText from "./FadeInText";
-import MusicNote from "/music-note.svg";
+import MusicNote from "@/public/music-note.svg";
 
 export default function ApplePlaylist({
   playlist,

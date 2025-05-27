@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import FadeInText from "./FadeInText";
-import MusicNote from "@/public/music-note.svg";
 
 export default function ApplePlaylist({
   playlist,
@@ -52,14 +51,20 @@ export default function ApplePlaylist({
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg  flex flex-col h-full border border-gray-200 dark:border-gray-700">
         <div className="relative w-full pt-[100%] bg-gray-100 dark:bg-gray-700">
-          <Image
-            src={imageUrl ? imageUrl : MusicNote}
-            alt={playlist.attributes?.name || "Apple Playlist"}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover absolute inset-0"
-            unoptimized
-          />
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={playlist.attributes?.name || "Apple Playlist"}
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover absolute inset-0 bg-gray-200 dark:bg-gray-700"
+              unoptimized
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+              <Image src={"/music-note.svg"} alt="music-note" />
+            </div>
+          )}
         </div>
         <div className="p-4 flex-grow flex flex-col">
           <h3 className="font-semibold text-gray-800 dark:text-white text-base mb-1 line-clamp-1">

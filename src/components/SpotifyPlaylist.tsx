@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 flex flex-col h-full border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg flex flex-col h-full border border-gray-200 dark:border-gray-700">
       <div className="relative w-full pt-[100%] bg-gray-100 dark:bg-gray-700">
         {playlist.images && playlist.images[0] ? (
           <Image
@@ -41,7 +41,7 @@ export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
       </div>
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Link href={`/export/${playlist.id}`}>
-          <a className="block w-full py-2 bg-blue-500 text-white text-sm font-medium text-center hover:bg-blue-600 transition-colors rounded-b">
+          <a className="block w-full py-2 bg-blue-500 text-white text-sm font-medium text-center hover:bg-blue-600 rounded-b">
             EXPORT
           </a>
         </Link>

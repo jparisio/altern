@@ -6,6 +6,7 @@ import {
   AppleMusicPlaylistsResponse,
   AppleMusicPlaylist,
 } from "@/lib/types/appleTypes";
+import FadeInText from "@/components/FadeInText";
 
 export default async function Page() {
   const { appleUserToken, spotifyAccessToken } = await getAuthCookies();
@@ -54,11 +55,13 @@ export default async function Page() {
   return (
     <main className="flex min-h-screen flex-col items-center p-8 relative">
       <div className="flex flex-col items-center justify-center mb-10">
-        <h1 className="text-2xl font-bold">Welcome, User!</h1>
+        <FadeInText className="text-4xl font-bold">Welcome, User!</FadeInText>
       </div>
 
-      <div className="w-full max-w-4xl">
-        <h2 className="text-xl font-bold mb-4">Your Spotify Playlists</h2>
+      <div className="w-full max-w-6xl">
+        <FadeInText className="text-xl font-bold mb-4">
+          Your Spotify Playlists
+        </FadeInText>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {SpotifyPlaylists.map((playlist) => (
             <Playlist key={playlist.id} playlist={playlist} />
@@ -66,8 +69,10 @@ export default async function Page() {
         </div>
       </div>
 
-      <div className="w-full max-w-4xl mt-12 ">
-        <h2 className="text-xl font-bold mb-4">Your Apple Music Playlists</h2>
+      <div className="w-full max-w-6xl mt-12 ">
+        <FadeInText className="text-xl font-bold mb-4">
+          Your Apple Music Playlists
+        </FadeInText>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {applePlaylists.data.map((playlist: AppleMusicPlaylist) => (
             <ApplePlaylist key={playlist.id} playlist={playlist} />

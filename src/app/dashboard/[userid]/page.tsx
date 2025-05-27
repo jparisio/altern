@@ -1,7 +1,10 @@
 import { cookies } from "next/headers";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Playlist from "@/components/Playlist";
-import { AppleMusicPlaylistsResponse } from "@/lib/types/appleTypes";
+import {
+  AppleMusicPlaylistsResponse,
+  AppleMusicPlaylist,
+} from "@/lib/types/appleTypes";
 import Image from "next/image";
 
 export default async function Page() {
@@ -68,7 +71,7 @@ export default async function Page() {
       <div className="w-full max-w-4xl mt-12">
         <h2 className="text-xl font-bold mb-4">Your Apple Music Playlists</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {applePlaylists.data.map((playlist: any) => {
+          {applePlaylists.data.map((playlist: AppleMusicPlaylist) => {
             const artwork = playlist.attributes?.artwork;
             const imageUrl = artwork?.url
               ?.replace("{w}", "300")

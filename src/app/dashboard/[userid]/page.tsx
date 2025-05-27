@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { getAuthCookies } from "@/lib/utils/getCookies";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Playlist from "@/components/SpotifyPlaylist";
 import ApplePlaylist from "@/components/ApplePlaylist";
@@ -8,23 +8,21 @@ import {
 } from "@/lib/types/appleTypes";
 
 export default async function Page() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("spotify_access_token")?.value;
-  const appleUserToken = cookieStore.get("apple_music_token")?.value;
+  const { appleUserToken, spotifyAccessToken } = await getAuthCookies();
   const appleDevToken = process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN;
 
   if (!appleUserToken || !appleDevToken) {
     return <p>Error: Missing Apple Music tokens. Please log in again.</p>;
   }
 
-  if (!accessToken) {
+  if (!spotifyAccessToken) {
     return <p>Error: No Spotify access token found. Please log in again.</p>;
   }
 
   // 🟢 Fetch Spotify playlists
   const spotifyRes = await fetch("https://api.spotify.com/v1/me/playlists", {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${spotifyAccessToken}`,
     },
   });
 

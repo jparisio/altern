@@ -1,10 +1,8 @@
 import { cookies } from "next/headers";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Playlist from "@/components/Playlist";
-import {
-  AppleMusicPlaylist,
-  AppleMusicPlaylistsResponse,
-} from "@/lib/types/appleTypes";
+import { AppleMusicPlaylistsResponse } from "@/lib/types/appleTypes";
+import Image from "next/image";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -82,7 +80,7 @@ export default async function Page() {
                 className="bg-white rounded-lg shadow p-4 flex flex-col items-center"
               >
                 {imageUrl ? (
-                  <img
+                  <Image
                     src={imageUrl}
                     alt={playlist.attributes?.name || "Apple Playlist"}
                     className="rounded-md w-full h-auto mb-2"

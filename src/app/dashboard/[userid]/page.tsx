@@ -1,5 +1,3 @@
-"use client";
-
 import { cookies } from "next/headers";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Playlist from "@/components/Playlist";

@@ -46,6 +46,8 @@ export async function POST(req: NextRequest) {
   // Now you have allTracks with full info for each song
   // Next: map these tracks to Spotify format, search and create a playlist on Spotify, etc.
 
+  console.log("Fetched tracks:", allTracks.length);
+
   // For now just return a fake export ID to confirm success
   return new Response(
     JSON.stringify({

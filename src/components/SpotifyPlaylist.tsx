@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import Image from "next/image";
 import { motion } from "framer-motion";

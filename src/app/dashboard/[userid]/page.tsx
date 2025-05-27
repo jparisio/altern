@@ -8,7 +8,7 @@ import {
 } from "@/lib/types/appleTypes";
 import FadeInText from "@/components/FadeInText";
 
-export default async function Page() {
+export default async function Page({ params }: { params: { userid: string } }) {
   const { appleUserToken, spotifyAccessToken } = await getAuthCookies();
   const appleDevToken = process.env.NEXT_PUBLIC_APPLE_MUSIC_DEVELOPER_TOKEN;
 
@@ -55,7 +55,7 @@ export default async function Page() {
   return (
     <main className="flex min-h-screen flex-col items-center p-8 relative">
       <div className="flex flex-col items-center justify-center mb-10">
-        <FadeInText className="text-6xl ">Welcome, User!</FadeInText>
+        <FadeInText className="text-6xl ">Welcome, {params.userid}!</FadeInText>
       </div>
 
       <div className="w-full max-w-4xl">

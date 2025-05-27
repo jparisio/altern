@@ -19,7 +19,7 @@ interface MusicKitInstance {
   authorize: () => Promise<string>;
 }
 
-export default function AppleMusicLogin() {
+export default function AppleAuthButton() {
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {

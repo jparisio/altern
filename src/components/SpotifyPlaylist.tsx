@@ -7,7 +7,12 @@ import { motion } from "framer-motion";
 
 export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg flex flex-col h-full border border-gray-200 dark:border-gray-700">
+    <motion.div
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg  flex flex-col h-full border border-gray-200 dark:border-gray-700"
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+    >
       <div className="relative w-full pt-[100%] bg-gray-100 dark:bg-gray-700">
         {playlist.images && playlist.images[0] ? (
           <Image
@@ -43,6 +48,6 @@ export default function Playlist({ playlist }: { playlist: SpotifyPlaylist }) {
           </a>
         </Link>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }

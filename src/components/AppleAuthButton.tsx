@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import SpotifyAuthButton from "@/components/SpotifyAuthButton";
+import { AnimatePresence, motion } from "framer-motion";
 
 declare global {
   interface Window {
@@ -51,17 +52,59 @@ export default function AppleAuthButton() {
     });
   };
 
-  return (
-    <>
-      <button
-        onClick={handleAppleLogin}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-      >
-        {isAuthorized ? "Apple Music Authorized 🎶" : "Connect Apple Music"}
-      </button>
+  const buttonVariants = {
+    initial: { opacity: 0, y: 50 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 1.2,
+        ease: [0.76, 0, 0.24, 1],
+      },
+    },
+    exit: {
+      opacity: 0,
+      backgroundColor: "green",
+      transition: {
+        duration: 0.75,
+        ease: [0.76, 0, 0.24, 1],
+      },
+    },
+  };
 
-      {/* Only show Spotify button after Apple Music is authorized */}
-      {isAuthorized && <SpotifyAuthButton />}
-    </>
+  return (
+    <motion.div
+      initial="initial"
+      animate="animate"
+      variants={buttonVariants}
+      className="flex flex-col items-center justify-center"
+    >
+      <AnimatePresence mode="wait">
+        {!isAuthorized ? (
+          <motion.button
+            key="apple-button" // Add unique key
+            onClick={handleAppleLogin}
+            className="mt-4 px-4 py-2 text-white rounded bg-blue-500 hover:bg-blue-600"
+            initial="initial"
+            animate="animate"
+            exit="exit" // Use the exit variant
+            variants={buttonVariants}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            Connect Apple Music
+          </motion.button>
+        ) : (
+          <motion.div
+            key="spotify-button" // Add unique key
+            initial="initial"
+            animate="animate"
+            variants={buttonVariants}
+          >
+            <SpotifyAuthButton />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

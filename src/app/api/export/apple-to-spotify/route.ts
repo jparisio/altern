@@ -4,8 +4,8 @@ import { getAuthCookies } from "@/lib/utils/getCookies";
 // import SpotifyPlaylist from "@/lib/types/spotifyTypes";
 import type { CreatePlaylistOptions } from "@/lib/types/spotifyTypes";
 import { createSpotifyPlaylist } from "@/lib/spotify/createPlaylists";
-import { addSpotifyTrack } from "@/lib/spotify/addSpotifyTrack";
-import { searchSpotifyTrack } from "@/lib/spotify/searchTracks";
+// import { addSpotifyTrack } from "@/lib/spotify/addSpotifyTrack";
+// import { searchSpotifyTrack } from "@/lib/spotify/searchTracks";
 
 export async function POST(req: NextRequest) {
   const {

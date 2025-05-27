@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let allTracks = [];
+  const allTracks = [];
   let url = tracksHref;
 
   // Example: fetch tracks (handle pagination if needed)

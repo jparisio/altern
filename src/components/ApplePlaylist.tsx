@@ -92,59 +92,73 @@ export default function ApplePlaylist({
 
       <AnimatePresence>
         {modal && (
-          <motion.div
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-            initial={{ y: 50 }}
-            animate={{
-              y: 0,
-              transition: { duration: 0.75, ease: [0.76, 0, 0.24, 1] },
-            }}
-            exit={{ y: 50 }}
-          >
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-              <h2 className="text-lg font-semibold mb-4">Export Playlist</h2>
-              <p className="mb-4">
-                Exporting the playlist{" "}
-                <strong>{playlist.attributes?.name || "Untitled"}</strong> to
-                Spotify will create a new playlist in your Spotify library.
-              </p>
-              {isExporting && (
-                <span className="block text-xs text-gray-500 mb-2">
-                  This may take a minute…
-                </span>
-              )}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleExport}
-                disabled={isExporting}
-                className={`block w-full py-2 text-white text-sm font-medium text-center rounded transition-colors ${
-                  isExporting
-                    ? "bg-blue-400 cursor-not-allowed"
-                    : "bg-blue-500 hover:bg-blue-600"
-                }`}
-              >
-                {isExporting ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Exporting...</span>
-                  </div>
-                ) : (
-                  "Confirm Export"
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-black bg-opacity-50 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => !isExporting && setModal(false)} // Optional: click to close
+            />
+
+            {/* Modal container */}
+            <motion.div
+              className="fixed inset-0 flex items-center justify-center z-50"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{
+                y: 0,
+                opacity: 1,
+                transition: { duration: 0.75, ease: [0.76, 0, 0.24, 1] },
+              }}
+              exit={{ y: 50, opacity: 0 }}
+            >
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+                <h2 className="text-lg font-semibold mb-4">Export Playlist</h2>
+                <p className="mb-4">
+                  Exporting the playlist{" "}
+                  <strong>{playlist.attributes?.name || "Untitled"}</strong> to
+                  Spotify will create a new playlist in your Spotify library.
+                </p>
+                {isExporting && (
+                  <span className="block text-xs text-gray-500 mb-2">
+                    This may take a minute…
+                  </span>
                 )}
-              </motion.button>
-              {!isExporting && (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="mt-4 w-full py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white text-sm font-medium text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors rounded"
-                  onClick={() => setModal(false)}
+                  onClick={handleExport}
+                  disabled={isExporting}
+                  className={`block w-full py-2 text-white text-sm font-medium text-center rounded transition-colors ${
+                    isExporting
+                      ? "bg-blue-400 cursor-not-allowed"
+                      : "bg-blue-500 hover:bg-blue-600"
+                  }`}
                 >
-                  Cancel
+                  {isExporting ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Exporting...</span>
+                    </div>
+                  ) : (
+                    "Confirm Export"
+                  )}
                 </motion.button>
-              )}
-            </div>
-          </motion.div>
+                {!isExporting && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="mt-4 w-full py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white text-sm font-medium text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors rounded"
+                    onClick={() => setModal(false)}
+                  >
+                    Cancel
+                  </motion.button>
+                )}
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>

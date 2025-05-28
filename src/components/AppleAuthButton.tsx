@@ -54,12 +54,6 @@ export default function AppleAuthButton() {
     setIsAuthorized(true);
   };
 
-  // Logout handler
-  const handleLogout = async () => {
-    await fetch("/api/logout", { method: "POST" });
-    setIsAuthorized(false);
-  };
-
   const buttonVariants = {
     initial: { opacity: 0, y: 50 },
     animate: {

@@ -25,7 +25,7 @@ export default function FadeInText({
       initial="initial"
       animate="animate"
       variants={textVariants}
-      className={`${className}`}
+      className={`${className} text-center`}
     >
       {children}
     </motion.div>

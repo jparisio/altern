@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
+  console.log("Received Spotify authorization code:", code);
   if (!code) {
     return NextResponse.json(
       { error: "Missing code from Spotify" },
@@ -27,6 +28,7 @@ export async function GET(req: NextRequest) {
 
   const contentType = tokenRes.headers.get("content-type") || "";
   const raw = await tokenRes.text();
+  console.log("Spotify token response:", raw);
 
   if (!tokenRes.ok) {
     let errorBody;

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
-  console.log("Received Spotify authorization code:", code);
   if (!code) {
     return NextResponse.json(
       { error: "Missing code from Spotify" },
@@ -13,6 +12,7 @@ export async function GET(req: NextRequest) {
   const authString = `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`;
   const encodedAuth = Buffer.from(authString).toString("base64");
 
+  // Exchange code for tokens
   const tokenRes = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
@@ -26,39 +26,42 @@ export async function GET(req: NextRequest) {
     }),
   });
 
-  const contentType = tokenRes.headers.get("content-type") || "";
-  const raw = await tokenRes.text();
-  console.log("Spotify token response:", raw);
-
   if (!tokenRes.ok) {
-    let errorBody;
-    try {
-      errorBody = contentType.includes("application/json")
-        ? JSON.parse(raw)
-        : { message: raw };
-    } catch (e) {
-      console.error(e);
-      errorBody = { message: raw };
+    const contentType = tokenRes.headers.get("content-type");
+    let errorMessage;
+
+    if (contentType && contentType.includes("application/json")) {
+      const errorJson = await tokenRes.json();
+      errorMessage = errorJson;
+    } else {
+      const errorText = await tokenRes.text();
+      errorMessage = { message: errorText };
     }
-    console.error("Spotify token exchange failed:", errorBody);
-    return NextResponse.json({ error: errorBody }, { status: tokenRes.status });
+
+    console.error("Spotify token exchange failed:", errorMessage);
+
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: tokenRes.status }
+    );
   }
 
-  let tokenJson;
+  let access_token, refresh_token;
   try {
-    tokenJson = JSON.parse(raw);
-  } catch (e) {
-    console.error("Failed to parse successful response as JSON:", raw);
-    console.error(e);
+    const json = await tokenRes.json();
+    access_token = json.access_token;
+    refresh_token = json.refresh_token;
+  } catch (err) {
+    const text = await tokenRes.text();
+    console.error("Unexpected token exchange response (not JSON):", text);
+    console.error("Error details:", err);
     return NextResponse.json(
-      { error: "Invalid token response format", raw },
+      { error: "Invalid token response", message: text },
       { status: 500 }
     );
   }
 
-  const access_token = tokenJson.access_token;
-  const refresh_token = tokenJson.refresh_token;
-
+  // Get user profile to find user ID
   const profileRes = await fetch("https://api.spotify.com/v1/me", {
     headers: {
       Authorization: `Bearer ${access_token}`,
@@ -66,9 +69,16 @@ export async function GET(req: NextRequest) {
   });
 
   if (!profileRes.ok) {
-    const profileError = await profileRes.json().catch(() => ({
-      message: "Failed to parse profile response",
-    }));
+    let profileError;
+    try {
+      // Try parsing JSON error from Spotify
+      profileError = await profileRes.json();
+    } catch {
+      // If not JSON, get raw text
+      const text = await profileRes.text();
+      profileError = { message: `Non-JSON response: ${text}` };
+    }
+    console.error("Spotify /me profile fetch failed:", profileError);
     return NextResponse.json(
       { error: profileError },
       { status: profileRes.status }
@@ -76,23 +86,21 @@ export async function GET(req: NextRequest) {
   }
 
   const profile = await profileRes.json();
+
   const userid = profile.id;
 
-  // Redirect response
+  // Create response redirecting to /dashboard/[userid]
   const response = NextResponse.redirect(
     new URL(`/dashboard/${userid}`, req.url)
   );
 
-  // --- Clear old cookies before setting new ones ---
-  response.cookies.delete("spotify_access_token");
-  response.cookies.delete("spotify_refresh_token");
-
-  // Set new cookies
+  // Set HTTP-only, secure cookies for tokens (adjust domain & options as needed)
+  // Secure: true requires HTTPS, so on localhost you might need false or use env flag
   response.cookies.set("spotify_access_token", access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60, // 1 hour
+    maxAge: 60 * 60, // 1 hour - match Spotify token expiry
   });
 
   response.cookies.set("spotify_refresh_token", refresh_token, {
@@ -101,14 +109,6 @@ export async function GET(req: NextRequest) {
     path: "/",
     maxAge: 60 * 60 * 24 * 30, // 30 days
   });
-
-  // --- Set cache-control headers to prevent caching ---
-  response.headers.set(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate"
-  );
-  response.headers.set("Pragma", "no-cache");
-  response.headers.set("Expires", "0");
 
   return response;
 }

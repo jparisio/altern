@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
         ? JSON.parse(raw)
         : { message: raw };
     } catch (e) {
+      console.error(e);
       errorBody = { message: raw };
     }
 
@@ -49,6 +50,7 @@ export async function GET(req: NextRequest) {
     tokenJson = JSON.parse(raw); // parse it once here
   } catch (e) {
     console.error("Failed to parse successful response as JSON:", raw);
+    console.error(e);
     return NextResponse.json(
       { error: "Invalid token response format", raw },
       { status: 500 }

@@ -103,20 +103,7 @@ export default function AppleAuthButton() {
             Connect Apple Music
           </motion.button>
         ) : (
-          <motion.div
-            key="spotify-button"
-            initial="initial"
-            animate="animate"
-            variants={buttonVariants}
-          >
-            <SpotifyAuthButton />
-            <button
-              onClick={handleLogout}
-              className="mt-4 px-4 py-2 text-white rounded bg-red-500 hover:bg-red-600"
-            >
-              Logout
-            </button>
-          </motion.div>
+          <SpotifyAuthButton />
         )}
       </AnimatePresence>
     </motion.div>

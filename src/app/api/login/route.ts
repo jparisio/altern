@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import queryString from "query-string";
 
 export async function GET() {
-  const scopes = ["playlist-modify-public", "playlist-modify-private"];
+  const scopes = [
+    "playlist-modify-public",
+    "playlist-modify-private",
+    "user-read-private",
+    "user-read-email",
+  ];
 
   const queryParams = queryString.stringify({
     response_type: "code",

@@ -7,9 +7,9 @@ export default function Callback() {
   }, []);
 
   return (
-    <p className="flex items-center justify-center text-3xl h-screen">
-      Redirecting via Spotify...
-    </p>
+    <div className="flex items-center justify-center h-screen">
+      <p className="text-xl font-bold">Redirecting via Spotify...</p>
+    </div>
   );
 }
 //nice

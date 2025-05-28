@@ -136,7 +136,7 @@ export default function ApplePlaylist({
                 </p>
                 {isExporting && (
                   <span className="block text-xs text-gray-500 mb-2">
-                    This may take a minute…
+                    This may take a few minutes…
                   </span>
                 )}
                 <motion.button

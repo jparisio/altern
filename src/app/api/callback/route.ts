@@ -27,11 +27,38 @@ export async function GET(req: NextRequest) {
   });
 
   if (!tokenRes.ok) {
-    const errorData = await tokenRes.json();
-    return NextResponse.json({ error: errorData }, { status: tokenRes.status });
+    const contentType = tokenRes.headers.get("content-type");
+    let errorMessage;
+
+    if (contentType && contentType.includes("application/json")) {
+      const errorJson = await tokenRes.json();
+      errorMessage = errorJson;
+    } else {
+      const errorText = await tokenRes.text();
+      errorMessage = { message: errorText };
+    }
+
+    console.error("Spotify token exchange failed:", errorMessage);
+
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: tokenRes.status }
+    );
   }
 
-  const { access_token, refresh_token } = await tokenRes.json();
+  let access_token, refresh_token;
+  try {
+    const json = await tokenRes.json();
+    access_token = json.access_token;
+    refresh_token = json.refresh_token;
+  } catch (err) {
+    const text = await tokenRes.text();
+    console.error("Unexpected token exchange response (not JSON):", text);
+    return NextResponse.json(
+      { error: "Invalid token response", message: text },
+      { status: 500 }
+    );
+  }
 
   // Get user profile to find user ID
   const profileRes = await fetch("https://api.spotify.com/v1/me", {

@@ -9,22 +9,10 @@ export async function GET() {
     client_id: process.env.SPOTIFY_CLIENT_ID,
     scope: scopes.join(" "),
     redirect_uri: process.env.SPOTIFY_REDIRECT_URI,
-    show_dialog: "true", // forces re-login
+    show_dialog: "true",
   });
 
-  const redirectUrl = `https://accounts.spotify.com/authorize?${queryParams}`;
-
-  const response = NextResponse.redirect(redirectUrl);
-
-  // Clear any old tokens
-  response.cookies.set("spotify_access_token", "", {
-    maxAge: 0,
-    path: "/",
-  });
-  response.cookies.set("spotify_refresh_token", "", {
-    maxAge: 0,
-    path: "/",
-  });
-
-  return response;
+  return NextResponse.redirect(
+    `https://accounts.spotify.com/authorize?${queryParams}`
+  );
 }

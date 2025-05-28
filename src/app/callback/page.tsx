@@ -6,6 +6,10 @@ export default function Callback() {
     window.location.href = `/api/callback${window.location.search}`;
   }, []);
 
-  return <p>Redirecting via Spotify...</p>;
+  return (
+    <p className="flex align-center justify-center text-6xl">
+      Redirecting via Spotify...
+    </p>
+  );
 }
 //nice

@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
   const authString = `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`;
   const encodedAuth = Buffer.from(authString).toString("base64");
 
-  // Exchange code for tokens
   const tokenRes = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
@@ -26,42 +25,46 @@ export async function GET(req: NextRequest) {
     }),
   });
 
-  if (!tokenRes.ok) {
-    const contentType = tokenRes.headers.get("content-type");
-    let errorMessage;
+  let access_token: string;
+  let refresh_token: string;
 
-    if (contentType && contentType.includes("application/json")) {
-      const errorJson = await tokenRes.json();
-      errorMessage = errorJson;
-    } else {
-      const errorText = await tokenRes.text();
-      errorMessage = { message: errorText };
+  try {
+    const contentType = tokenRes.headers.get("content-type");
+
+    if (!tokenRes.ok) {
+      const errorBody = contentType?.includes("application/json")
+        ? await tokenRes.json()
+        : { message: await tokenRes.text() };
+
+      console.error("Spotify token exchange failed:", errorBody);
+      return NextResponse.json(
+        { error: errorBody },
+        { status: tokenRes.status }
+      );
     }
 
-    console.error("Spotify token exchange failed:", errorMessage);
+    // ✅ Parse only once
+    if (!contentType?.includes("application/json")) {
+      const body = await tokenRes.text();
+      console.error("Spotify responded with unexpected format:", body);
+      return NextResponse.json(
+        { error: "Unexpected token response", body },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: tokenRes.status }
-    );
-  }
-
-  let access_token, refresh_token;
-  try {
     const json = await tokenRes.json();
     access_token = json.access_token;
     refresh_token = json.refresh_token;
   } catch (err) {
-    const text = await tokenRes.text();
-    console.error("Unexpected token exchange response (not JSON):", text);
-    console.error("Error details:", err);
+    console.error("Unexpected error parsing token response:", err);
     return NextResponse.json(
-      { error: "Invalid token response", message: text },
+      { error: "Error parsing token response", details: err },
       { status: 500 }
     );
   }
 
-  // Get user profile to find user ID
+  // 🎯 Get user profile
   const profileRes = await fetch("https://api.spotify.com/v1/me", {
     headers: {
       Authorization: `Bearer ${access_token}`,
@@ -79,25 +82,22 @@ export async function GET(req: NextRequest) {
   const profile = await profileRes.json();
   const userid = profile.id;
 
-  // Create response redirecting to /dashboard/[userid]
   const response = NextResponse.redirect(
     new URL(`/dashboard/${userid}`, req.url)
   );
 
-  // Set HTTP-only, secure cookies for tokens (adjust domain & options as needed)
-  // Secure: true requires HTTPS, so on localhost you might need false or use env flag
   response.cookies.set("spotify_access_token", access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60, // 1 hour - match Spotify token expiry
+    maxAge: 60 * 60,
   });
 
   response.cookies.set("spotify_refresh_token", refresh_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30, // 30 days
+    maxAge: 60 * 60 * 24 * 30,
   });
 
   return response;

@@ -8,3 +8,4 @@ export default function Callback() {
 
   return <p>Redirecting via Spotify...</p>;
 }
+//nice

@@ -33,13 +33,16 @@ export default function LogoutButton() {
       initial="initial"
       animate="animate"
       variants={buttonVariants}
+      className="absolute top-4 right-4"
     >
-      <button
+      <motion.button
         onClick={handleLogout}
-        className="mt-4 px-4 py-2 text-white rounded bg-red-500 hover:bg-red-600 absolute top-4 right-4"
+        className="mt-4 px-4 py-2 text-white rounded bg-red-500 hover:bg-red-600 "
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
       >
         Logout
-      </button>
+      </motion.button>
     </motion.div>
   );
 }

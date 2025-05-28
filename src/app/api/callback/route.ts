@@ -26,11 +26,9 @@ export async function GET(req: NextRequest) {
   });
 
   const contentType = tokenRes.headers.get("content-type") || "";
-
-  const raw = await tokenRes.text(); // read once — as text
+  const raw = await tokenRes.text();
 
   if (!tokenRes.ok) {
-    // Try to parse as JSON, else use raw text
     let errorBody;
     try {
       errorBody = contentType.includes("application/json")
@@ -40,14 +38,13 @@ export async function GET(req: NextRequest) {
       console.error(e);
       errorBody = { message: raw };
     }
-
     console.error("Spotify token exchange failed:", errorBody);
     return NextResponse.json({ error: errorBody }, { status: tokenRes.status });
   }
 
   let tokenJson;
   try {
-    tokenJson = JSON.parse(raw); // parse it once here
+    tokenJson = JSON.parse(raw);
   } catch (e) {
     console.error("Failed to parse successful response as JSON:", raw);
     console.error(e);
@@ -60,7 +57,6 @@ export async function GET(req: NextRequest) {
   const access_token = tokenJson.access_token;
   const refresh_token = tokenJson.refresh_token;
 
-  // ✅ Fetch user profile
   const profileRes = await fetch("https://api.spotify.com/v1/me", {
     headers: {
       Authorization: `Bearer ${access_token}`,
@@ -80,23 +76,37 @@ export async function GET(req: NextRequest) {
   const profile = await profileRes.json();
   const userid = profile.id;
 
+  // Redirect response
   const response = NextResponse.redirect(
     new URL(`/dashboard/${userid}`, req.url)
   );
 
+  // --- Clear old cookies before setting new ones ---
+  response.cookies.delete("spotify_access_token");
+  response.cookies.delete("spotify_refresh_token");
+
+  // Set new cookies
   response.cookies.set("spotify_access_token", access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60,
+    maxAge: 60 * 60, // 1 hour
   });
 
   response.cookies.set("spotify_refresh_token", refresh_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: 60 * 60 * 24 * 30, // 30 days
   });
+
+  // --- Set cache-control headers to prevent caching ---
+  response.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
 
   return response;
 }

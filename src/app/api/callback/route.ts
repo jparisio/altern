@@ -32,13 +32,23 @@ export async function GET(req: NextRequest) {
   });
 
   if (!tokenRes.ok) {
-    console.error("Spotify token exchange failed:", await tokenRes.text());
+    const errorText = await tokenRes.text();
+    console.error("Spotify token exchange failed:", errorText);
     return NextResponse.redirect(new URL("/login?error=invalid_code", req.url));
   }
 
   const tokenData = await tokenRes.json();
   const access_token = tokenData.access_token;
   const refresh_token = tokenData.refresh_token;
+
+  // Debug: Log token info
+  console.log("Access token received:", access_token ? "Yes" : "No");
+  console.log("Token scope:", tokenData.scope);
+
+  if (!access_token) {
+    console.error("No access token in response:", tokenData);
+    return NextResponse.redirect(new URL("/login?error=no_token", req.url));
+  }
 
   const profileRes = await fetch("https://api.spotify.com/v1/me", {
     headers: {
@@ -47,14 +57,34 @@ export async function GET(req: NextRequest) {
   });
 
   if (!profileRes.ok) {
-    console.error("Spotify /me failed:", await profileRes.text());
-    return NextResponse.redirect(
-      new URL("/login?error=profile_fetch_failed", req.url)
-    );
+    const errorText = await profileRes.text();
+    console.error("Spotify /me failed:", {
+      status: profileRes.status,
+      statusText: profileRes.statusText,
+      error: errorText,
+      token: access_token?.substring(0, 20) + "...", // Log partial token for debugging
+    });
+
+    // Return more specific error based on status
+    if (profileRes.status === 401) {
+      return NextResponse.redirect(
+        new URL("/login?error=invalid_token", req.url)
+      );
+    } else if (profileRes.status === 403) {
+      return NextResponse.redirect(
+        new URL("/login?error=insufficient_scope", req.url)
+      );
+    } else {
+      return NextResponse.redirect(
+        new URL("/login?error=profile_fetch_failed", req.url)
+      );
+    }
   }
 
   const profile = await profileRes.json();
   const userid = profile.id;
+
+  console.log("Profile fetched successfully for user:", userid);
 
   // Create redirect to dashboard
   const response = NextResponse.redirect(
@@ -68,17 +98,21 @@ export async function GET(req: NextRequest) {
     path: "/",
     maxAge: 3600,
   });
-  response.cookies.set("spotify_refresh_token", refresh_token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  });
+
+  if (refresh_token) {
+    response.cookies.set("spotify_refresh_token", refresh_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+    });
+  }
+
   response.cookies.set("used_spotify_code", code, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 5, // Code is short-lived
+    maxAge: 60 * 5,
   });
 
   return response;

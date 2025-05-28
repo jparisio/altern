@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     const text = await tokenRes.text();
     console.error("Unexpected token exchange response (not JSON):", text);
+    console.error("Error details:", err);
     return NextResponse.json(
       { error: "Invalid token response", message: text },
       { status: 500 }

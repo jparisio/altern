@@ -25,46 +25,40 @@ export async function GET(req: NextRequest) {
     }),
   });
 
-  let access_token: string;
-  let refresh_token: string;
+  const contentType = tokenRes.headers.get("content-type") || "";
 
+  const raw = await tokenRes.text(); // read once — as text
+
+  if (!tokenRes.ok) {
+    // Try to parse as JSON, else use raw text
+    let errorBody;
+    try {
+      errorBody = contentType.includes("application/json")
+        ? JSON.parse(raw)
+        : { message: raw };
+    } catch (e) {
+      errorBody = { message: raw };
+    }
+
+    console.error("Spotify token exchange failed:", errorBody);
+    return NextResponse.json({ error: errorBody }, { status: tokenRes.status });
+  }
+
+  let tokenJson;
   try {
-    const contentType = tokenRes.headers.get("content-type");
-
-    if (!tokenRes.ok) {
-      const errorBody = contentType?.includes("application/json")
-        ? await tokenRes.json()
-        : { message: await tokenRes.text() };
-
-      console.error("Spotify token exchange failed:", errorBody);
-      return NextResponse.json(
-        { error: errorBody },
-        { status: tokenRes.status }
-      );
-    }
-
-    // ✅ Parse only once
-    if (!contentType?.includes("application/json")) {
-      const body = await tokenRes.text();
-      console.error("Spotify responded with unexpected format:", body);
-      return NextResponse.json(
-        { error: "Unexpected token response", body },
-        { status: 500 }
-      );
-    }
-
-    const json = await tokenRes.json();
-    access_token = json.access_token;
-    refresh_token = json.refresh_token;
-  } catch (err) {
-    console.error("Unexpected error parsing token response:", err);
+    tokenJson = JSON.parse(raw); // parse it once here
+  } catch (e) {
+    console.error("Failed to parse successful response as JSON:", raw);
     return NextResponse.json(
-      { error: "Error parsing token response", details: err },
+      { error: "Invalid token response format", raw },
       { status: 500 }
     );
   }
 
-  // 🎯 Get user profile
+  const access_token = tokenJson.access_token;
+  const refresh_token = tokenJson.refresh_token;
+
+  // ✅ Fetch user profile
   const profileRes = await fetch("https://api.spotify.com/v1/me", {
     headers: {
       Authorization: `Bearer ${access_token}`,
@@ -72,9 +66,11 @@ export async function GET(req: NextRequest) {
   });
 
   if (!profileRes.ok) {
-    const errorData = await profileRes.json();
+    const profileError = await profileRes.json().catch(() => ({
+      message: "Failed to parse profile response",
+    }));
     return NextResponse.json(
-      { error: errorData },
+      { error: profileError },
       { status: profileRes.status }
     );
   }
